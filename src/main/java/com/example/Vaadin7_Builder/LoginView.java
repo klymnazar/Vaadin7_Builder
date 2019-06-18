@@ -24,14 +24,17 @@ public class LoginView extends VerticalLayout implements View {
 		VerticalLayout loginPanelVerticalLayout = new VerticalLayout();
 		loginPanelVerticalLayout.setMargin(true);
 		loginPanelVerticalLayout.setSpacing(true);
+		loginPanelVerticalLayout.setWidthUndefined();
 				
 		TextField usernameTextField = new TextField();
 		usernameTextField.setValue("username");
+		usernameTextField.setWidthUndefined();
 		
 		PasswordField passwordPasswordField = new PasswordField();
 		passwordPasswordField.setValue("password");
 		
 		Button loginButton = new Button("Login");
+		loginButton.setWidth("100%");
 
 		loginButton.addClickListener( e -> {
 			UI.getCurrent().getNavigator().navigateTo(NavigatorUI.MAINVIEW);
@@ -56,6 +59,7 @@ public class LoginView extends VerticalLayout implements View {
 	    });
 			
 		Button registrationButton = new Button("Registration");
+		registrationButton.setWidth("100%");
 		
 		loginPanelVerticalLayout.addComponents(usernameTextField, passwordPasswordField, loginButton, registrationButton);
 		
