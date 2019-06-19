@@ -60,6 +60,26 @@ public class LoginView extends VerticalLayout implements View {
 			
 		Button registrationButton = new Button("Registration");
 		registrationButton.setWidth("100%");
+		registrationButton.addClickListener(e -> {
+			UI.getCurrent().getNavigator().navigateTo(NavigatorUI.REGISTRATION);
+		});
+		
+		
+//***********************		
+		Button startButton = new Button("Start");
+		startButton.setWidth("100%");
+		startButton.addClickListener(e -> {
+			UI.getCurrent().getNavigator().navigateTo(NavigatorUI.START);
+		});
+		
+		
+//		loginPanelVerticalLayout.addComponents(startButton);
+		
+		
+		
+//***********************		
+		
+		
 		
 		loginPanelVerticalLayout.addComponents(usernameTextField, passwordPasswordField, loginButton, registrationButton);
 		

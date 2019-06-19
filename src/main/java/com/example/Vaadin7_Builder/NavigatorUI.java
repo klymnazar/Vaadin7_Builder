@@ -14,6 +14,8 @@ import com.vaadin.ui.UI;
 public class NavigatorUI extends UI {
 	Navigator navigator;
 	protected static final String MAINVIEW = "main";
+	protected static final String REGISTRATION = "registration";
+	protected static final String START = "start";
 	@Override
 	protected void init(VaadinRequest request) {
 		getPage().setTitle("Navigation Example");
@@ -23,7 +25,8 @@ public class NavigatorUI extends UI {
 		
 		// Create and register the views 
 		navigator.addView("", new LoginView());
-//		navigator.addView("", new StartView());
+		navigator.addView(REGISTRATION, new RegistrationView());
+//		navigator.addView(START, new StartView());
 		
 		
 //		navigator.addView("", new StartView2());
