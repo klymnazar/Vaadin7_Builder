@@ -1,5 +1,9 @@
-package com.example.Vaadin7_Builder;
+package com.example.Vaadin7_Builder.view;
 
+import java.sql.SQLException;
+
+import com.example.Vaadin7_Builder.model.User;
+import com.example.Vaadin7_Builder.service.UserService;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Alignment;
@@ -10,9 +14,11 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-public class RegistrationView extends VerticalLayout implements View{
+public class OldRegistrationView extends VerticalLayout implements View{
 	
-	public RegistrationView() {
+	UserService userService = new UserService();
+	
+	public OldRegistrationView() {
 		setMargin(true);
 		
 		
@@ -52,6 +58,36 @@ public class RegistrationView extends VerticalLayout implements View{
 		Button registrationButton = new Button("Registration");
 		registrationButton.addClickListener( e -> {
 			UI.getCurrent().getNavigator().navigateTo("");
+			
+			
+			User user = new User();
+			
+//			user.setUserFirstName("firstNameTextField");
+//			user.setUserLastName("lastNameTextField");
+//			user.setUserName("usernameTextField");
+//			user.setUserPassword("passwordTextField");
+//			user.setUserMail("emailTextField");
+//			user.setUserPhone(98);
+			
+			user.setUserFirstName(firstNameTextField.getValue());
+			user.setUserLastName(lastNameTextField.getValue());
+			user.setUserName(usernameTextField.getValue());
+			user.setUserPassword(passwordTextField.getValue());
+			user.setUserMail(emailTextField.getValue());
+			
+//			user.setUserPhone(0);
+//			user.setUserPhone(phoneTextField.getValue());
+			
+			try {
+				userService.createUser(user);
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+
+			
+			
 			
 			
 //			if (usernameTextField.getValue().equals("admin") && passwordPasswordField.getValue().equals("admin"))

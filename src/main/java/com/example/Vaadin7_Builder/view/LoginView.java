@@ -1,5 +1,6 @@
-package com.example.Vaadin7_Builder;
+package com.example.Vaadin7_Builder.view;
 
+import com.example.Vaadin7_Builder.NavigatorUI;
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -78,6 +79,11 @@ public class LoginView extends VerticalLayout implements View {
 		
 		
 //***********************		
+
+
+		
+		
+		
 		
 		
 		

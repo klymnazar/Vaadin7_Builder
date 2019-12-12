@@ -1,4 +1,4 @@
-package com.example.Vaadin7_Builder;
+package com.example.Vaadin7_Builder.view;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.Navigator;
@@ -82,6 +82,9 @@ public class MainView extends VerticalLayout implements View {
 			userManagementButton.setStyleName("huge");
 			userManagementButton.setSizeFull();
 			userManagementButton.addClickListener( e -> {
+				UI.getCurrent().getNavigator().navigateTo("userManagement");
+				
+				
 //	    		panelMain.removeFromParent(panelMain);
 //	    		vertical.addComponent(new ser());
 				
@@ -94,18 +97,39 @@ public class MainView extends VerticalLayout implements View {
 			Button flatInfoButton = new Button("Flat Info");
 			flatInfoButton.setStyleName("huge");
 			flatInfoButton.setSizeFull();
+			
+			flatInfoButton.addClickListener( e -> {
+				UI.getCurrent().getNavigator().navigateTo("flatInfo");
+
+			});
+			
+			
 			mainPanelGridLayout.addComponent(flatInfoButton, 1, 0, 1, 0);
 			mainPanelGridLayout.setComponentAlignment(flatInfoButton, Alignment.MIDDLE_CENTER);
 			
 			Button buildingInfoButton = new Button("Building Info");
 			buildingInfoButton.setStyleName("huge");
 			buildingInfoButton.setSizeFull();
+			
+			buildingInfoButton.addClickListener( e -> {
+				UI.getCurrent().getNavigator().navigateTo("buildingInfo");
+
+			});
+			
 			mainPanelGridLayout.addComponent(buildingInfoButton, 0, 1, 0, 1);
 			mainPanelGridLayout.setComponentAlignment(buildingInfoButton, Alignment.MIDDLE_CENTER);
+			
+			
 			
 			Button accountingButton = new Button("Accounting");
 			accountingButton.setStyleName("huge");
 			accountingButton.setSizeFull();
+			
+			accountingButton.addClickListener(e -> {
+				UI.getCurrent().getNavigator().navigateTo("accounting");
+				
+			});
+			
 			mainPanelGridLayout.addComponent(accountingButton, 1, 1, 1, 1);
 			mainPanelGridLayout.setComponentAlignment(accountingButton, Alignment.MIDDLE_CENTER);
 			
