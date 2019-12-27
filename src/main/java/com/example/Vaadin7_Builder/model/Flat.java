@@ -12,6 +12,9 @@ public class Flat {
 	private int flatNumber;
 	private double flatArea;
 	private int flatRooms;
+	
+	private int idflatBuyerTable;
+	
 	private String flatBuyerFirstname;
 	private String flatBuyerLastname;
 	private String flatBuyerSurname;
@@ -76,6 +79,16 @@ public class Flat {
 	public void setFlatRooms(int flatRooms) {
 		this.flatRooms = flatRooms;
 	}
+	
+	
+	public int getIdflatBuyerTable() {
+		return idflatBuyerTable;
+	}
+	public void setIdflatBuyerTable(int idflatBuyerTable) {
+		this.idflatBuyerTable = idflatBuyerTable;
+	}
+	
+	
 	
 	public String getFlatBuyerFirstname() {
 		return flatBuyerFirstname;

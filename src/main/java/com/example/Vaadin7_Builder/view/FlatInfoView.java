@@ -1,7 +1,9 @@
 package com.example.Vaadin7_Builder.view;
 
 import java.sql.SQLException;
+//import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -28,18 +30,19 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.renderers.DateRenderer;
 
 public class FlatInfoView extends VerticalLayout implements View {
 
-	FlatService flatService = new FlatService();
+	private FlatService flatService = new FlatService();
 
-	Grid flatGrid = new Grid();
+	private Grid flatGrid = new Grid();
 
 	private String flatSetReserved = "Reserved";
 	private String flatSetSolded = "Solded";
 	private String flatSetFree = "";
 
-	GridLayout flatInfoGridLayout = new GridLayout(1, 3);
+	private GridLayout flatInfoGridLayout = new GridLayout(1, 3);
 
 	public FlatInfoView() throws SQLException {
 
@@ -47,7 +50,10 @@ public class FlatInfoView extends VerticalLayout implements View {
 		flatInfoGridLayout.setSizeFull();
 		addComponent(flatInfoGridLayout);
 
-		flatGrid = flatGridFlatInfoView(flatService.getFlatsFromDB());
+//		flatGrid = flatGridFlatInfoView(flatService.getFlatsFromDB());
+		
+		flatGrid = flatGridFlatInfoView(flatService.getFlatsFromFlatTableAndFlatBuyerDB());
+		
 
 		flatInfoGridLayout.addComponent(flatGrid, 0, 0, 0, 0);
 
@@ -77,11 +83,14 @@ public class FlatInfoView extends VerticalLayout implements View {
 //		flatGrid.addColumn("flatBuyerSurname", String.class);
 //		flatGrid.addColumn("flatContractNumber", String.class);
 //		
-//		flatGrid.addColumn("flatContractDate", Date.class);
+		flatGrid.addColumn("flatContractDate", Date.class);
 //		flatGrid.addColumn("flatCost", Integer.class);
 //		flatGrid.addColumn("flatSellerName", String.class);
 //		flatGrid.addColumn("flatNotes", String.class);
 
+		flatGrid.getColumn("flatContractDate").setHeaderCaption("Flat Contract Date").setRenderer(new DateRenderer("%1$td.%1$tm.%1$tY"));
+		
+		
 		Iterator<Flat> itr = flatList.iterator();
 		while (itr.hasNext()) {
 			Flat flatFromList = itr.next();
@@ -90,12 +99,13 @@ public class FlatInfoView extends VerticalLayout implements View {
 					flatFromList.getFlatSet()
 //							, flatFromList.getFlatBuyerFirstname(), flatFromList.getFlatBuyerLastname(),
 //							flatFromList.getFlatBuyerSurname(), flatFromList.getFlatContractNumber(), 
-//					, flatFromList.getFlatContractDate()
+					, flatFromList.getFlatContractDate()
 
 //							, flatFromList.getFlatCost(), flatFromList.getFlatSellerName(), flatFromList.getFlatNotes()
 			);
 		}
 
+		
 		return flatGrid;
 
 	}
@@ -115,7 +125,9 @@ public class FlatInfoView extends VerticalLayout implements View {
 
 				try {
 
-					flatGrid = flatGridFlatInfoView(flatService.getFlatsFromDB());
+//					flatGrid = flatGridFlatInfoView(flatService.getFlatsFromDB());
+					
+					flatGrid = flatGridFlatInfoView(flatService.getFlatsFromFlatTableAndFlatBuyerDB());
 
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
@@ -127,6 +139,8 @@ public class FlatInfoView extends VerticalLayout implements View {
 
 				try {
 
+//					flatGrid = flatGridFlatInfoView(flatService.getFlatsByFlatSetFromDB(flatSet));
+					
 					flatGrid = flatGridFlatInfoView(flatService.getFlatsByFlatSetFromDB(flatSet));
 
 				} catch (SQLException e) {
@@ -182,7 +196,7 @@ public class FlatInfoView extends VerticalLayout implements View {
 	public Layout flatButtonHorizontalLayout() throws SQLException {
 
 		HorizontalLayout buttonHorizontalLayout = new HorizontalLayout();
-		buttonHorizontalLayout.setMargin(true);
+//		buttonHorizontalLayout.setMargin(true);
 		buttonHorizontalLayout.setSpacing(true);
 		buttonHorizontalLayout.setSizeFull();
 
@@ -429,7 +443,7 @@ public class FlatInfoView extends VerticalLayout implements View {
 					flatInfoGridLayout.removeComponent(0, 2);
 
 					flatGrid = flatGridFlatInfoView(flatService.getFlatsFromDB());
-								
+//								
 					flatInfoGridLayout.addComponent(flatGrid, 0, 0, 0, 0);
 
 					flatInfoGridLayout.addComponent(flatButtonHorizontalLayout(), 0, 2, 0, 2);
@@ -772,12 +786,13 @@ public class FlatInfoView extends VerticalLayout implements View {
 
 		cancelButton.addClickListener(e1 -> {
 
-			try {
-				flatService.updateFlatSetByFlatIdInFlatTable(getIdFlatTableFromSelectedRow(), flatSetFree);
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			
+//			try {
+//				flatService.updateFlatSetByFlatIdInFlatTable(getIdFlatTableFromSelectedRow(), flatSetFree);
+//			} catch (SQLException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 
 			UI.getCurrent().getNavigator().navigateTo("main");
 		});
