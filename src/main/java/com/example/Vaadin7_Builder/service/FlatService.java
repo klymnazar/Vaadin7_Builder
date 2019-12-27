@@ -41,6 +41,103 @@ public class FlatService {
 		conn.close();
 
 	}
+	
+	public void createBuyerFlat(Flat buyerFlat) throws SQLException {
+
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+		int idflatTable = buyerFlat.getIdFlatTable();
+		String flatBuyerFirstname = buyerFlat.getFlatBuyerFirstname();
+		String flatBuyerLarstname = buyerFlat.getFlatBuyerLastname();
+		String flatBuyerSurname = buyerFlat.getFlatBuyerSurname();
+		String flatContractNumber = buyerFlat.getFlatContractNumber();
+		String flatContractDate = dateFormat.format(buyerFlat.getFlatContractDate());
+		int flatCost = buyerFlat.getFlatCost();
+//		double flatCost_m = buyerFlat.getFlatCost_m();
+		String flatSellerName = buyerFlat.getFlatSellerName();
+		String flatNotes = buyerFlat.getFlatNotes();
+//		int flatGeneralExpenses = buyerFlat.getFlatGeneralExpenses();
+//		int flatBCExpenses = buyerFlat.getFlatBCExpenses();
+//		int flatCMExpenses = buyerFlat.getFlatCMExpenses();
+		
+		
+		
+
+		SqlConnection sqlConnection = new SqlConnection();
+		Connection conn = sqlConnection.sqlConnection();
+
+		String sql = "INSERT INTO flatbuyerTable (idflatTable, flatBuyerFirstname, flatBuyerLastname, flatBuyerSurname,"
+				+ " flatContractNumber, flatContractDate, flatCost, flatSellerName, flatNotes)"
+				+ " VALUES (" + idflatTable + ", '" + flatBuyerFirstname + "', '" + flatBuyerLarstname + "', '" + flatBuyerSurname + "',"
+						+ " '" + flatContractNumber + "', DATE('" + flatContractDate + "'), " + flatCost + ", '" + flatSellerName + "', '" + flatNotes + "')";
+		
+		
+		
+		
+//		String sql = "UPDATE flatTable SET flatSet = 'Solded', flatBuyerFirstname = '" + flatBuyerFirstname
+//				+ "', flatBuyerLastname = '" + flatBuyerLarstname + "'," + " flatBuyerSurname = '" + flatBuyerSurname
+//				+ "', flatContractNumber = '" + flatContractNumber + "', flatContractDate = DATE('" + flatContractDate
+//				+ "')," + " flatCost_$ = " + flatCost + ", flatCost_m$ = " + flatCost_m + ", flatSellerName = '" + flatSellerName + "', flatNotes = '"
+//				+ flatNotes + "', flatGeneralExpenses = " + flatGeneralExpenses + ", flatBCExpenses = " + flatBCExpenses + ",  flatCMExpenses = " +  flatCMExpenses + " WHERE idflatTable =" + flatId;
+
+//		System.out.println(sql);
+		Statement statement = conn.createStatement();
+
+		statement.executeUpdate(sql);
+
+		conn.close();
+
+	}
+	
+	
+	public void updateFlatSetByFlatIdInFlatTable(int flatId, String flatSet) throws SQLException {
+
+//		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//
+//		String flatBuyerFirstname = flat.getFlatBuyerFirstname();
+//		String flatBuyerLarstname = flat.getFlatBuyerLastname();
+//		String flatBuyerSurname = flat.getFlatBuyerSurname();
+//		String flatContractNumber = flat.getFlatContractNumber();
+//		String flatContractDate = dateFormat.format(flat.getFlatContractDate());
+//		int flatCost = flat.getFlatCost();
+//		double flatCost_m = flat.getFlatCost_m();
+//		String flatSellerName = flat.getFlatSellerName();
+//		String flatNotes = flat.getFlatNotes();
+//		int flatGeneralExpenses = flat.getFlatGeneralExpenses();
+//		int flatBCExpenses = flat.getFlatBCExpenses();
+//		int flatCMExpenses = flat.getFlatCMExpenses();
+		
+		
+		
+
+		SqlConnection sqlConnection = new SqlConnection();
+		Connection conn = sqlConnection.sqlConnection();
+
+		String sql = "UPDATE flatTable SET flatSet = '" + flatSet + "' WHERE idflatTable =" + flatId;
+
+		
+		
+		
+		
+//		String sql = "UPDATE flatTable SET flatSet = 'Solded', flatBuyerFirstname = '" + flatBuyerFirstname
+//				+ "', flatBuyerLastname = '" + flatBuyerLarstname + "'," + " flatBuyerSurname = '" + flatBuyerSurname
+//				+ "', flatContractNumber = '" + flatContractNumber + "', flatContractDate = DATE('" + flatContractDate
+//				+ "')," + " flatCost_$ = " + flatCost + ", flatCost_m$ = " + flatCost_m + ", flatSellerName = '" + flatSellerName + "', flatNotes = '"
+//				+ flatNotes + "', flatGeneralExpenses = " + flatGeneralExpenses + ", flatBCExpenses = " + flatBCExpenses + ",  flatCMExpenses = " +  flatCMExpenses + " WHERE idflatTable =" + flatId;
+
+//		System.out.println(sql);
+		Statement statement = conn.createStatement();
+
+		statement.executeUpdate(sql);
+
+		conn.close();
+
+	}
+	
+	
+	
+	
+	
 
 	public Flat getFlatByFlatNumber(int flatNumber) throws SQLException {
 
@@ -76,6 +173,21 @@ public class FlatService {
 		return flat;
 	}
 
+//	public void deleteFlatById(int flatId) throws SQLException {
+//
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
+//
+//		String sql = "DELETE FROM flatTable WHERE idflatTable=" + flatId;
+//
+////			System.out.println(sql);
+//		Statement statement = conn.createStatement();
+//		statement.executeUpdate(sql);
+//
+//		conn.close();
+//	}
+	
+	
 	public void deleteFlatByFlatNumber(int flatNunber) throws SQLException {
 
 		SqlConnection sqlConnection = new SqlConnection();
@@ -89,6 +201,7 @@ public class FlatService {
 
 		conn.close();
 	}
+	
 
 	public int countFlats() throws SQLException {
 
@@ -210,14 +323,14 @@ public class FlatService {
 	}
 	
 	
-	public List<Flat> getSoldedFlatsFromDB() throws SQLException {
+	public List<Flat> getFlatsByFlatSetFromDB(String flatSet) throws SQLException {
 
 		List<Flat> flatList = new ArrayList<>();
 
 		SqlConnection sqlConnection = new SqlConnection();
 		Connection conn = sqlConnection.sqlConnection();
 
-		String sql = "SELECT * FROM flatTable WHERE flatSet = 'Solded'";
+		String sql = "SELECT * FROM flatTable WHERE flatSet = '" + flatSet + "'";
 
 //		System.out.println(sql);
 		Statement statement = conn.createStatement();
@@ -269,7 +382,7 @@ public class FlatService {
 	
 	
 
-	public Flat getFlatByFlatId(int flatId) throws SQLException {
+	public Flat getFlatByFlatIdFromFlatTable(int flatId) throws SQLException {
 
 		Flat flat = new Flat();
 

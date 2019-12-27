@@ -63,7 +63,7 @@ public class AccountingView extends VerticalLayout implements View {
 			try {
 //				flatList = flatService.getFlatsFromDB();
 
-				flatList = flatService.getSoldedFlatsFromDB();
+				flatList = flatService.getFlatsByFlatSetFromDB("Solded");
 
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block

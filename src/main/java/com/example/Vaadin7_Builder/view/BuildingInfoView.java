@@ -161,6 +161,7 @@ public class BuildingInfoView extends VerticalLayout implements View {
 		}
 		else {
 			flatGrid.addColumn("flatCost", Integer.class);
+//			flatService.updateBuyerInfoFlatByFlatId(flatId, flat);
 		}	
 
 
@@ -407,7 +408,7 @@ public class BuildingInfoView extends VerticalLayout implements View {
 
 				try {
 
-					flattt = flatService.getFlatByFlatId(Integer.parseInt(idFlatTableFromSelectedRow));
+					flattt = flatService.getFlatByFlatIdFromFlatTable(Integer.parseInt(idFlatTableFromSelectedRow));
 				} catch (SQLException e2) {
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
@@ -446,7 +447,7 @@ public class BuildingInfoView extends VerticalLayout implements View {
 				Flat saleFlat = new Flat();
 
 				try {
-					saleFlat = flatService.getFlatByFlatId(Integer.parseInt(idFlatTableFromSelectedRow));
+					saleFlat = flatService.getFlatByFlatIdFromFlatTable(Integer.parseInt(idFlatTableFromSelectedRow));
 				} catch (NumberFormatException | SQLException e2) {
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
@@ -539,7 +540,7 @@ public class BuildingInfoView extends VerticalLayout implements View {
 
 			Flat selectedFlat = new Flat();
 			try {
-				selectedFlat = flatService.getFlatByFlatId(Integer.parseInt(idFlatTableFromSelectedRow));
+				selectedFlat = flatService.getFlatByFlatIdFromFlatTable(Integer.parseInt(idFlatTableFromSelectedRow));
 			} catch (NumberFormatException | SQLException e2) {
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
