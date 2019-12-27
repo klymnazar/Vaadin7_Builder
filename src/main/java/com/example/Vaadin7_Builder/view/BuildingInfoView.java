@@ -1,36 +1,26 @@
 package com.example.Vaadin7_Builder.view;
 
 import java.sql.SQLException;
-//import java.text.DateFormat;
-//import java.text.SimpleDateFormat;
-//import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 import com.example.Vaadin7_Builder.model.Flat;
 import com.example.Vaadin7_Builder.service.FlatService;
-//import com.example.Vaadin7_Builder.service.SpendService;
 import com.vaadin.data.validator.DoubleValidator;
 import com.vaadin.data.validator.IntegerValidator;
-//import com.vaadin.event.SelectionEvent;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
-//import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.Grid.Column;
 import com.vaadin.ui.Grid.SingleSelectionModel;
 import com.vaadin.ui.renderers.DateRenderer;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Layout;
-//import com.vaadin.ui.Panel;
-import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -41,21 +31,19 @@ public class BuildingInfoView extends VerticalLayout implements View {
 	private FlatService flatService = new FlatService();
 
 	private Grid flatGrid = new Grid();
-	
+
 	private GridLayout buildingInfoGridLayout = new GridLayout(1, 3);
-	
-	private String flatSetReserved = "Reserved";
-	private String flatSetSolded = "Solded";
+
+//	private String flatSetReserved = "Reserved";
+//	private String flatSetSolded = "Solded";
 	private String flatSetFree = "";
-	
-	
 
 	public BuildingInfoView() throws SQLException {
-		
+
 		buildingInfoGridLayout.setMargin(true);
 		buildingInfoGridLayout.setSizeFull();
 		addComponent(buildingInfoGridLayout);
-		
+
 		flatGrid = flatGridFlatInfoView(flatService.getFlatsFromFlatTableAndFlatBuyerDB());
 
 		buildingInfoGridLayout.addComponent(flatGrid, 0, 0, 0, 0);
@@ -68,7 +56,7 @@ public class BuildingInfoView extends VerticalLayout implements View {
 	public Grid flatGridFlatInfoView(List<Flat> flatList) throws SQLException {
 
 		Grid flatGrid = new Grid();
-		
+
 		flatGrid.setSizeFull();
 
 //		flatGrid.setSelectionMode(SelectionMode.MULTI);
@@ -193,8 +181,6 @@ public class BuildingInfoView extends VerticalLayout implements View {
 
 		});
 
-
-
 		return checkBoxHorizontalLayout;
 	}
 
@@ -204,7 +190,6 @@ public class BuildingInfoView extends VerticalLayout implements View {
 //		buttonHorizontalLayout.setMargin(true);
 		buttonHorizontalLayout.setSpacing(true);
 		buttonHorizontalLayout.setSizeFull();
-//		addComponent(buttonHorizontalLayout);
 
 		buttonHorizontalLayout.addComponent(addFlatButton());
 
@@ -263,7 +248,6 @@ public class BuildingInfoView extends VerticalLayout implements View {
 			Button addWindowButton = new Button("Add");
 			addWindowButton.addClickListener(c -> {
 
-				
 				Flat flat = new Flat();
 
 				flat.setBuildingCorps(buildingCorpsComboBox.getValue().toString());
@@ -278,31 +262,18 @@ public class BuildingInfoView extends VerticalLayout implements View {
 				if (flatAreaTextField.isValid() && flatNumberTextField.isValid()) {
 					addFlatWindow.close();
 				}
-				
-//				buildingInfoGridLayout.removeComponent(0, 0);
-				
 
 				try {
 					flatService.createFlat(flat);
-					
+
 					buildingInfoGridLayout.removeComponent(0, 0);
-//					flatGrid = flatGridFlatInfoView(flatService.getFlatsFromFlatTableAndFlatBuyerDB());
+					flatGrid = flatGridFlatInfoView(flatService.getFlatsFromFlatTableAndFlatBuyerDB());
 					buildingInfoGridLayout.addComponent(flatGrid, 0, 0, 0, 0);
-//					flatGrid.addRow(flat.getIdFlatTable(), flat.getBuildingCorps(), flat.getFlatRooms(),
-//							flat.getFlatFloor(), flat.getFlatNumber(), flat.getFlatArea());
 
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
-//				try {
-//					flatGrid = flatGridFlatInfoView(flatService.getFlatsFromFlatTableAndFlatBuyerDB());
-//					buildingInfoGridLayout.addComponent(flatGrid, 0, 0, 0, 0);
-//				} catch (SQLException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				}
 
 			});
 			addWindowButton.setSizeFull();
@@ -330,21 +301,18 @@ public class BuildingInfoView extends VerticalLayout implements View {
 
 	public Button deleteFlatButton() {
 
-		
-		
-		
 		Button deleteFlatButton = new Button("Delete Flat");
 		deleteFlatButton.setSizeFull();
 		deleteFlatButton.setEnabled(false);
 
-		
 		flatGrid.addSelectionListener(SelectionEvent -> {
 
 			Object selected = ((SingleSelectionModel) flatGrid.getSelectionModel()).getSelectedRow();
 			String idFlatTableFromSelectedRow = flatGrid.getContainerDataSource().getItem(selected)
 					.getItemProperty("idFlatTable").getValue().toString();
 			try {
-				String flatSetFromFlatGrid = flatService.getFlatByFlatIdFromFlatTable(Integer.parseInt(idFlatTableFromSelectedRow)).getFlatSet();
+				String flatSetFromFlatGrid = flatService
+						.getFlatByFlatIdFromFlatTable(Integer.parseInt(idFlatTableFromSelectedRow)).getFlatSet();
 
 				if (flatSetFromFlatGrid.equals(flatSetFree)) {
 					deleteFlatButton.setEnabled(true);
@@ -357,19 +325,19 @@ public class BuildingInfoView extends VerticalLayout implements View {
 			}
 
 		});
-		
+
 		deleteFlatButton.addClickListener(e -> {
-		
+
 			Object selected = ((SingleSelectionModel) flatGrid.getSelectionModel()).getSelectedRow();
 			String idFlatTableFromSelectedRow = flatGrid.getContainerDataSource().getItem(selected)
 					.getItemProperty("idFlatTable").getValue().toString();
-			
+
 			try {
-				
-					flatService.deleteFlatByFlatId(Integer.parseInt(idFlatTableFromSelectedRow));
-					buildingInfoGridLayout.removeComponent(flatGrid);
-					flatGrid = flatGridFlatInfoView(flatService.getFlatsFromFlatTableAndFlatBuyerDB());
-					buildingInfoGridLayout.addComponent(flatGrid, 0, 0, 0, 0);
+
+				flatService.deleteFlatByFlatId(Integer.parseInt(idFlatTableFromSelectedRow));
+				buildingInfoGridLayout.removeComponent(flatGrid);
+				flatGrid = flatGridFlatInfoView(flatService.getFlatsFromFlatTableAndFlatBuyerDB());
+				buildingInfoGridLayout.addComponent(flatGrid, 0, 0, 0, 0);
 
 			} catch (NumberFormatException | SQLException e1) {
 				// TODO Auto-generated catch block
@@ -378,12 +346,9 @@ public class BuildingInfoView extends VerticalLayout implements View {
 
 		});
 
-		
-
 		return deleteFlatButton;
 	}
-	
-	
+
 	public Button cancelButton() {
 
 		Button cancelButton = new Button("Cancel");
@@ -394,11 +359,6 @@ public class BuildingInfoView extends VerticalLayout implements View {
 
 		return cancelButton;
 	}
-	
-	
-	
-	
-	
 
 //	public Button saleFlatButton() {
 //
@@ -859,8 +819,6 @@ public class BuildingInfoView extends VerticalLayout implements View {
 //
 //		return spendButton;
 //	}
-
-	
 
 	@Override
 	public void enter(ViewChangeEvent event) {
