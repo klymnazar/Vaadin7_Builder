@@ -66,6 +66,13 @@ public class MainView extends VerticalLayout implements View {
 			horizontalLayout.addComponent(logoutButton);
 			
 			
+			Button settingsButton = new Button("Settings");
+			settingsButton.addClickListener( e -> {
+				UI.getCurrent().getNavigator().navigateTo("settings");
+			});
+			settingsButton.setSizeUndefined();
+			horizontalLayout.addComponent(settingsButton);
+			
 			
 			Panel mainPanel = new Panel("Main Panel");
 			mainPanel.setSizeFull();
@@ -126,7 +133,7 @@ public class MainView extends VerticalLayout implements View {
 			accountingButton.setSizeFull();
 			
 			accountingButton.addClickListener(e -> {
-				UI.getCurrent().getNavigator().navigateTo("accounting");
+			UI.getCurrent().getNavigator().navigateTo("accounting");
 				
 			});
 			

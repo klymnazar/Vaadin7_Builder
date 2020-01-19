@@ -11,6 +11,7 @@ import com.example.Vaadin7_Builder.view.BuildingInfoView;
 import com.example.Vaadin7_Builder.view.EditFormView;
 import com.example.Vaadin7_Builder.view.FlatInfoView;
 import com.example.Vaadin7_Builder.view.RegistrationView;
+import com.example.Vaadin7_Builder.view.SettingsView;
 import com.example.Vaadin7_Builder.view.UserManagementView;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
@@ -29,6 +30,7 @@ public class NavigatorUI extends UI {
 	private static final String FLATINFO = "flatInfo";
 	private static final String BUILDINGINFO = "buildingInfo";
 	private static final String ACCOUNTING = "accounting";
+	private static final String SETTINGS = "settings";
 
 	private static final String EDIT = "edit";
 
@@ -42,6 +44,8 @@ public class NavigatorUI extends UI {
 		// Create and register the views
 		navigator.addView("", new LoginView());
 		navigator.addView(REGISTRATION, new RegistrationView());
+		
+		navigator.addView(SETTINGS, new SettingsView());
 
 		try {
 			navigator.addView(FLATINFO, new FlatInfoView());

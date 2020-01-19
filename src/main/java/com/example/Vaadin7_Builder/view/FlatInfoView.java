@@ -1,11 +1,15 @@
 package com.example.Vaadin7_Builder.view;
 
 import java.sql.SQLException;
-//import java.text.DateFormat;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import com.example.Vaadin7_Builder.model.Flat;
 import com.example.Vaadin7_Builder.service.FlatService;
@@ -13,17 +17,21 @@ import com.vaadin.data.validator.DoubleValidator;
 import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.ThemeResource;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.Column;
+import com.vaadin.ui.Grid.FooterRow;
 import com.vaadin.ui.Grid.SingleSelectionModel;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.GridLayout.OutOfBoundsException;
 import com.vaadin.ui.GridLayout.OverlapsException;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Image;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
@@ -42,23 +50,25 @@ public class FlatInfoView extends VerticalLayout implements View {
 	private String flatSetSolded = "Solded";
 	private String flatSetFree = "";
 
-	private GridLayout flatInfoGridLayout = new GridLayout(1, 3);
+	private GridLayout flatInfoGridLayout = new GridLayout(1, 15);
 
+	private DecimalFormat decimalFormat = new DecimalFormat("0.00");
+	
 	public FlatInfoView() throws SQLException {
 
-		flatInfoGridLayout.setMargin(true);
+		setSizeFull();
 		flatInfoGridLayout.setSizeFull();
+		flatInfoGridLayout.setMargin(true);
+		flatInfoGridLayout.setSpacing(true);
 		addComponent(flatInfoGridLayout);
-
-//		flatGrid = flatGridFlatInfoView(flatService.getFlatsFromDB());
 
 		flatGrid = flatGridFlatInfoView(flatService.getFlatsFromFlatTableAndFlatBuyerDB());
 
-		flatInfoGridLayout.addComponent(flatGrid, 0, 0, 0, 0);
+		flatInfoGridLayout.addComponent(flatGrid, 0, 0, 0, 12);
 
-		flatInfoGridLayout.addComponent(checkBoxHorizontalLayout(), 0, 1, 0, 1);
+		checkBoxHorizontalLayout();
 
-		flatInfoGridLayout.addComponent(flatButtonHorizontalLayout(), 0, 2, 0, 2);
+		flatButtonHorizontalLayout();
 
 	}
 
@@ -68,8 +78,7 @@ public class FlatInfoView extends VerticalLayout implements View {
 
 		flatGrid.setSizeFull();
 
-//		flatGrid.setSelectionMode(SelectionMode.MULTI);
-
+		flatGrid.addColumn("№", Integer.class);
 		flatGrid.addColumn("idFlatTable", Integer.class);
 		flatGrid.addColumn("buildingCorps", String.class);
 		flatGrid.addColumn("flatRooms", Integer.class);
@@ -79,33 +88,54 @@ public class FlatInfoView extends VerticalLayout implements View {
 		flatGrid.addColumn("flatSet", String.class);
 
 		flatGrid.addColumn("flatContractDate", Date.class);
+		
+		flatGrid.getColumn("idFlatTable").setHidden(true);
 
 		flatGrid.getColumn("flatContractDate").setHeaderCaption("Flat Contract Date")
 				.setRenderer(new DateRenderer("%1$td.%1$tm.%1$tY"));
+		
+		int number = 1;
+		double flatArea = 0;
 
 		Iterator<Flat> itr = flatList.iterator();
 		while (itr.hasNext()) {
 			Flat flatFromList = itr.next();
-			flatGrid.addRow(flatFromList.getIdFlatTable(), flatFromList.getBuildingCorps(), flatFromList.getFlatRooms(),
+			flatGrid.addRow(number, flatFromList.getIdFlatTable(), flatFromList.getBuildingCorps(), flatFromList.getFlatRooms(),
 					flatFromList.getFlatFloor(), flatFromList.getFlatNumber(), flatFromList.getFlatArea(),
 					flatFromList.getFlatSet()
-
 					, flatFromList.getFlatContractDate()
-
 			);
+			number ++;
+			flatArea = flatArea + flatFromList.getFlatArea();
 		}
+		
+		FooterRow flatGridFooterRow = flatGrid.prependFooterRow();
+		flatGridFooterRow.getCell("flatArea").setText("Total: " + decimalFormat.format(flatArea).replace(",", "."));
+		
 
 		return flatGrid;
 
 	}
 
+	
+	public void updateFlatInfoPage() throws SQLException {
+
+		flatInfoGridLayout.removeComponent(flatGrid);
+		flatInfoGridLayout.removeComponent(0, 14);
+		flatGrid = flatGridFlatInfoView(flatService.getFlatsFromFlatTableAndFlatBuyerDB());
+		flatInfoGridLayout.addComponent(flatGrid, 0, 0, 0, 12);
+		flatButtonHorizontalLayout();
+
+	}
+	
+	
 	public Grid checkBoxEvent(CheckBox nameEnableCheckBox, CheckBox name1DisableCheckBox, CheckBox name2DisableCheckBox,
 			String flatSet) {
 
 		nameEnableCheckBox.addValueChangeListener(event -> {
 
-			flatInfoGridLayout.removeComponent(0, 0);
-			flatInfoGridLayout.removeComponent(0, 2);
+			flatInfoGridLayout.removeComponent(flatGrid);
+			flatInfoGridLayout.removeComponent(0, 14);
 
 			if (nameEnableCheckBox.isEmpty()) {
 
@@ -133,17 +163,11 @@ public class FlatInfoView extends VerticalLayout implements View {
 					e.printStackTrace();
 				}
 			}
-			try {
-
-				flatInfoGridLayout.addComponent(flatGrid, 0, 0, 0, 0);
-
-			} catch (OverlapsException | OutOfBoundsException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			
 
 			try {
-				flatInfoGridLayout.addComponent(flatButtonHorizontalLayout(), 0, 2, 0, 2);
+				flatInfoGridLayout.addComponent(flatGrid, 0, 0, 0, 12);
+				flatButtonHorizontalLayout();
 			} catch (OverlapsException | OutOfBoundsException | SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -157,9 +181,9 @@ public class FlatInfoView extends VerticalLayout implements View {
 	public Layout checkBoxHorizontalLayout() {
 
 		HorizontalLayout checkBoxHorizontalLayout = new HorizontalLayout();
-		checkBoxHorizontalLayout.setMargin(true);
 		checkBoxHorizontalLayout.setSpacing(true);
-		checkBoxHorizontalLayout.setSizeFull();
+		checkBoxHorizontalLayout.setWidth("100%");
+		checkBoxHorizontalLayout.setHeight("50px");
 
 		CheckBox freeCheckBox = new CheckBox("Free flats");
 		CheckBox soldCheckBox = new CheckBox("Solded flats");
@@ -174,16 +198,18 @@ public class FlatInfoView extends VerticalLayout implements View {
 		checkBoxEvent(reservCheckBox, soldCheckBox, freeCheckBox, flatSetReserved);
 		checkBoxHorizontalLayout.addComponent(reservCheckBox);
 
+		flatInfoGridLayout.addComponent(checkBoxHorizontalLayout, 0, 13, 0, 13);
+		flatInfoGridLayout.setComponentAlignment(checkBoxHorizontalLayout, Alignment.BOTTOM_CENTER);
+		
 		return checkBoxHorizontalLayout;
-
 	}
 
 	public Layout flatButtonHorizontalLayout() throws SQLException {
 
 		HorizontalLayout buttonHorizontalLayout = new HorizontalLayout();
-//		buttonHorizontalLayout.setMargin(true);
 		buttonHorizontalLayout.setSpacing(true);
-		buttonHorizontalLayout.setSizeFull();
+		buttonHorizontalLayout.setWidth("100%");
+		buttonHorizontalLayout.setHeight("50px");
 
 		buttonHorizontalLayout.addComponent(reservFlatButton());
 
@@ -193,6 +219,9 @@ public class FlatInfoView extends VerticalLayout implements View {
 
 		buttonHorizontalLayout.addComponent(cancelButton());
 
+		flatInfoGridLayout.addComponent(buttonHorizontalLayout, 0, 14, 0, 14);
+		flatInfoGridLayout.setComponentAlignment(buttonHorizontalLayout, Alignment.MIDDLE_CENTER);
+		
 		return buttonHorizontalLayout;
 	}
 
@@ -223,6 +252,7 @@ public class FlatInfoView extends VerticalLayout implements View {
 						.getFlatSet();
 				if (flatSetFromFlatGrid.equals(flatSetOld)) {
 					nameButton.setEnabled(true);
+					
 				} else {
 					nameButton.setEnabled(false);
 				}
@@ -236,14 +266,11 @@ public class FlatInfoView extends VerticalLayout implements View {
 		nameButton.addClickListener(e1 -> {
 
 			try {
-
+		
 				flatService.updateFlatSetByFlatIdInFlatTable(getIdFlatTableFromSelectedRow(), flatSetNew);
-				flatInfoGridLayout.removeComponent(flatGrid);
-				flatInfoGridLayout.removeComponent(0, 2);
-				flatGrid = flatGridFlatInfoView(flatService.getFlatsFromDB());
-				flatInfoGridLayout.addComponent(flatGrid, 0, 0, 0, 0);
-				flatInfoGridLayout.addComponent(flatButtonHorizontalLayout(), 0, 2, 0, 2);
 
+				updateFlatInfoPage();
+				
 			} catch (NumberFormatException | SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -299,27 +326,37 @@ public class FlatInfoView extends VerticalLayout implements View {
 		saleFlatButton.addClickListener(e -> {
 
 			Window saleFlatWindow = new Window("Sale Flat");
-			saleFlatWindow.setWidth("850px");
+			saleFlatWindow.setWidth("900px");
+			saleFlatWindow.setHeight("600px");
 
-			VerticalLayout saleFlatWindowVerticalLayout = new VerticalLayout();
-
-			saleFlatWindow.setContent(saleFlatWindowVerticalLayout);
-
-			HorizontalLayout saleFlatWindowHorizontalLayout = new HorizontalLayout();
-			saleFlatWindowHorizontalLayout.setMargin(true);
-			saleFlatWindowHorizontalLayout.setSpacing(true);
-			saleFlatWindowHorizontalLayout.setSizeFull();
-			saleFlatWindowVerticalLayout.addComponent(saleFlatWindowHorizontalLayout);
-
+			GridLayout saleFlatWindowGridLayout = new GridLayout(2, 12);
+			
+			saleFlatWindowGridLayout.setSizeFull();
+			saleFlatWindowGridLayout.setMargin(true);
+			saleFlatWindowGridLayout.setSpacing(true);
+			
+			saleFlatWindow.setContent(saleFlatWindowGridLayout);
+			
 			FormLayout saleFlatWindowFormLayout = new FormLayout();
 			saleFlatWindowFormLayout.setMargin(true);
 
 			saleFlatWindowFormLayout.setSizeFull();
 
 			DateField saleFlatDateField = new DateField("Contract Date");
+//			SimpleDateFormat dateFormat = new SimpleDateFormat ("dd.MM.yyyy HH:mm:ss Ze");
+//			dateFormat.format(new Date());
+//			saleFlatDateField.setLocale(new Locale("ua", "UA"));
+//			LocalDateTime localDateTime = LocalDateTime.now();
+//			saleFlatDateField.setDate(dateFormat.format(new Date()));
+			
+			
 			saleFlatDateField.setValue(new java.util.Date());
 
+			
+//			saleFlatDateField.setDateFormat("");
+			
 			saleFlatDateField.setDateFormat("dd.MM.yyyy");
+//			saleFlatDateField.setDateFormat("dd.MM.yyyy HH:mm:ss Ze");
 			saleFlatWindowFormLayout.addComponent(saleFlatDateField);
 
 			TextField firstNameTextField = new TextField("First Name");
@@ -339,19 +376,38 @@ public class FlatInfoView extends VerticalLayout implements View {
 
 			Panel saleFlatBuyerInfoPanel = new Panel("Buyer Info");
 			saleFlatBuyerInfoPanel.setSizeFull();
-			saleFlatWindowHorizontalLayout.addComponent(saleFlatBuyerInfoPanel);
-			saleFlatBuyerInfoPanel.setContent(saleFlatWindowFormLayout);
 
+			saleFlatWindowGridLayout.addComponent(saleFlatBuyerInfoPanel, 0, 0, 0, 10);
+			saleFlatBuyerInfoPanel.setContent(saleFlatWindowFormLayout);
+			
+			
+			Panel saleFlatInfoGridPanel = new Panel("Flat Info");
+			saleFlatInfoGridPanel.setSizeFull();
+			
+			VerticalLayout saleFlatWindowInfoGridPanelVerticalLayout = new VerticalLayout();
+			saleFlatWindowInfoGridPanelVerticalLayout.setSizeFull();
+			
+			saleFlatInfoGridPanel.setContent(saleFlatWindowInfoGridPanelVerticalLayout);
+			
 			Grid saleFlatInfoGrid = new Grid();
+			saleFlatInfoGrid.setHeight("230px");
+			saleFlatInfoGrid.setWidth("100%");
+			
 
 			saleFlatInfoGrid.addColumn("Name", String.class);
 			saleFlatInfoGrid.addColumn("Value", String.class);
+			
 
 			List<Column> flatGridColumnNameList = new ArrayList<>();
-			int i = 0;
 
-			flatGridColumnNameList = flatGrid.getColumns();
+			flatGridColumnNameList.add(0, flatGrid.getColumn("buildingCorps"));
+			flatGridColumnNameList.add(1, flatGrid.getColumn("flatRooms"));
+			flatGridColumnNameList.add(2, flatGrid.getColumn("flatFloor"));
+			flatGridColumnNameList.add(3, flatGrid.getColumn("flatNumber"));
+			flatGridColumnNameList.add(4, flatGrid.getColumn("flatArea"));
 
+			int elementFromList = 0;
+			
 			Iterator<Column> itr = flatGridColumnNameList.iterator();
 			while (itr.hasNext()) {
 				Column columnNameFromList = itr.next();
@@ -359,8 +415,8 @@ public class FlatInfoView extends VerticalLayout implements View {
 				Flat selectedFlat = new Flat();
 
 				try {
-
-					selectedFlat = flatService.getFlatByFlatIdFromFlatTable(getIdFlatTableFromSelectedRow());
+		
+					selectedFlat = flatService.getFlatByFlatIdFromFlatTableShortInfo(getIdFlatTableFromSelectedRow());
 
 				} catch (SQLException e2) {
 					// TODO Auto-generated catch block
@@ -368,26 +424,36 @@ public class FlatInfoView extends VerticalLayout implements View {
 				}
 
 				try {
-					saleFlatInfoGrid.addRow(flatGridColumnNameList.get(i).getHeaderCaption(),
-							flatService.getFlatFromDbByColumnIndex(i, selectedFlat));
+					saleFlatInfoGrid.addRow(flatGridColumnNameList.get(elementFromList).getHeaderCaption(),
+							flatService.getFlatFromDbByColumnIndex(elementFromList+1, selectedFlat));
 				} catch (IllegalStateException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 
-				i++;
+				elementFromList++;
 			}
+			
+			saleFlatWindowGridLayout.addComponent(saleFlatInfoGridPanel, 1, 0, 1, 10);
+			saleFlatWindowInfoGridPanelVerticalLayout.addComponent(saleFlatInfoGrid);
+			
+			
+			
+			Image logoImage = new Image(null, new ThemeResource("image/logo-design-30.jpg"));
+			logoImage.setHeight("100%");
+			logoImage.addClickListener( e1 -> {
+////			    		vertical.addComponent(new Label("Thanks logo, works!"));
+////						vertical.addComponents(panelMain);
+			});
 
-			Panel saleFlatInfoGridPanel = new Panel("Flat Info");
-
-			saleFlatInfoGridPanel.setSizeFull();
-			saleFlatWindowHorizontalLayout.addComponent(saleFlatInfoGridPanel);
-			saleFlatInfoGridPanel.setContent(saleFlatInfoGrid);
+			saleFlatWindowInfoGridPanelVerticalLayout.addComponent(logoImage);
+			saleFlatWindowInfoGridPanelVerticalLayout.setComponentAlignment(logoImage, Alignment.MIDDLE_CENTER);
+			saleFlatWindowInfoGridPanelVerticalLayout.setExpandRatio(logoImage, 1.0f);
 
 			HorizontalLayout saleFlatWindowButtonHorizontalLayout = new HorizontalLayout();
-			saleFlatWindowButtonHorizontalLayout.setSizeFull();
+			saleFlatWindowButtonHorizontalLayout.setHeight("50px");
+			saleFlatWindowButtonHorizontalLayout.setWidth("100%");
 			saleFlatWindowButtonHorizontalLayout.setSpacing(true);
-			saleFlatWindowVerticalLayout.addComponent(saleFlatWindowButtonHorizontalLayout);
 
 			Button saleFlatWindowButton = new Button("Sale Flat Window");
 			saleFlatWindowButton.setSizeFull();
@@ -421,18 +487,8 @@ public class FlatInfoView extends VerticalLayout implements View {
 					e1.printStackTrace();
 				}
 
-				try {
-
-					flatInfoGridLayout.removeComponent(flatGrid);
-
-					flatInfoGridLayout.removeComponent(0, 2);
-
-					flatGrid = flatGridFlatInfoView(flatService.getFlatsFromFlatTableAndFlatBuyerDB());
-
-					flatInfoGridLayout.addComponent(flatGrid, 0, 0, 0, 0);
-
-					flatInfoGridLayout.addComponent(flatButtonHorizontalLayout(), 0, 2, 0, 2);
-
+				try {					
+					updateFlatInfoPage();
 				} catch (NumberFormatException | SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -441,16 +497,18 @@ public class FlatInfoView extends VerticalLayout implements View {
 			});
 
 			saleFlatWindowButtonHorizontalLayout.addComponent(saleFlatWindowButton);
-
+	
 			Button cancelWindowButton = new Button("Cancel");
 			cancelWindowButton.setSizeFull();
-			saleFlatWindowButtonHorizontalLayout.addComponent(cancelWindowButton);
 
 			cancelWindowButton.addClickListener(e1 -> {
 				saleFlatWindow.close();
-
 			});
 
+			saleFlatWindowButtonHorizontalLayout.addComponent(cancelWindowButton);
+			
+			saleFlatWindowGridLayout.addComponent(saleFlatWindowButtonHorizontalLayout, 0, 11, 1, 11);
+			
 			saleFlatWindow.center();
 
 			UI.getCurrent().addWindow(saleFlatWindow);

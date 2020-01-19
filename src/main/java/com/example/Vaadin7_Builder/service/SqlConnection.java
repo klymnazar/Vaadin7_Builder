@@ -11,7 +11,8 @@ public class SqlConnection {
 		Connection conn = null;
 		
 		try {
-			String url = "jdbc:mysql://localhost/builderdb?serverTimezone=Europe/Moscow&useSSL=false";
+//			String url = "jdbc:mysql://localhost/builderdb?serverTimezone=Europe/Moscow&useSSL=false";
+			String url = "jdbc:mysql://localhost/builderdb?serverTimezone=Europe/Kiev&useSSL=false";
 			String username = "root";
 			String password = "root";
 			Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();

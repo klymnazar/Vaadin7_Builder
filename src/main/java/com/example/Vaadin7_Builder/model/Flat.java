@@ -1,5 +1,8 @@
 package com.example.Vaadin7_Builder.model;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -34,6 +37,15 @@ public class Flat {
 	private String expensesTableCategory;
 	private String expensesTableValue;
 
+//	private Date bankTableContractDate;
+//	private String bankTableContractNumber;
+	private Date bankTablePaymentDate;
+	private double bankTablePaymentSum;
+	
+	private Date new_date_tablecol;
+	private Date new_date_tablecol1;
+	
+	
 	public int getIdFlatTable() {
 		return idFlatTable;
 	}
@@ -226,4 +238,88 @@ public class Flat {
 		this.expensesTableValue = expensesTableValue;
 	}
 
+	
+	
+	
+	
+	
+//	public Date getBankTableContractDate() {
+//		return bankTableContractDate;
+//	}
+//
+//	public void setBankTableContractDate(Date bankTableContractDate) {
+//		this.bankTableContractDate = bankTableContractDate;
+//	}
+//	
+//	
+//	public String getBankTableContractNumber() {
+//		return bankTableContractNumber;
+//	}
+//
+//	public void setBankTableContractNumber(String bankTableContractNumber) {
+//		this.bankTableContractNumber = bankTableContractNumber;
+//	}
+	
+	public Date getNew_date_tablecol() throws ParseException {
+		
+//		DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+//		
+//		String strDate = dateFormat.format(new_date_tablecol);
+//		
+//		String dateStr = strDate;
+//		
+//		Date new_date_tablecol = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse(dateStr);
+		
+		return new_date_tablecol;
+	}
+
+	public void setNew_date_tablecol(Date new_date_tablecol) throws ParseException {
+		
+//		DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+//		
+//		String strDate = dateFormat.format(new_date_tablecol);
+//		
+//		String dateStr = strDate;
+//		
+//		new_date_tablecol = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse(dateStr);
+		
+		
+		
+		
+		this.new_date_tablecol = new_date_tablecol;
+	}
+	
+	public Date getNew_date_tablecol1() {
+		return new_date_tablecol1;
+	}
+
+	public void setNew_date_tablecol1(Date new_date_tablecol1) {
+		this.new_date_tablecol1 = new_date_tablecol1;
+	}
+	
+	
+	
+	
+	
+	
+
+	public Date getBankTablePaymentDate() {
+		return bankTablePaymentDate;
+	}
+
+	public void setBankTablePaymentDate(Date bankTablePaymentDate) {
+		this.bankTablePaymentDate = bankTablePaymentDate;
+	}
+	
+	
+	public double getBankTablePaymentSum() {
+		return bankTablePaymentSum;
+	}
+
+	public void setBankTablePaymentSum(double bankTablePaymentSum) {
+		this.bankTablePaymentSum = bankTablePaymentSum;
+	}
+	
+	
+	
 }

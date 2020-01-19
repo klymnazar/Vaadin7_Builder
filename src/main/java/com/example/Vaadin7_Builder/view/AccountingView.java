@@ -1,19 +1,24 @@
 package com.example.Vaadin7_Builder.view;
 
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-
+//import java.util.TimeZone;
 import com.example.Vaadin7_Builder.model.Flat;
 import com.example.Vaadin7_Builder.service.FlatService;
+import com.example.Vaadin7_Builder.view.AccountingViewServises.AddExpensesButton;
+import com.example.Vaadin7_Builder.view.AccountingViewServises.ExpensesInfoButton;
 import com.vaadin.data.Property.ReadOnlyException;
-import com.vaadin.data.validator.DoubleValidator;
-import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.shared.ui.datefield.Resolution;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
@@ -23,7 +28,6 @@ import com.vaadin.ui.Grid;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Grid.FooterRow;
 import com.vaadin.ui.Grid.SingleSelectionModel;
-//import com.vaadin.ui.Grid.Column;
 import com.vaadin.ui.renderers.ButtonRenderer;
 import com.vaadin.ui.renderers.DateRenderer;
 import com.vaadin.ui.HorizontalLayout;
@@ -35,13 +39,19 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-public class AccountingView extends VerticalLayout implements View {
+public class AccountingView extends HorizontalLayout implements View {
 
 	FlatService flatService = new FlatService();
 
+	AddExpensesButton addExpensesButton = new AddExpensesButton();
+	
+	ExpensesInfoButton expensesInfoButton = new ExpensesInfoButton();
+	
 	private Grid flatGrid = new Grid();
 
-	private GridLayout accountingInfoGridLayout = new GridLayout(1, 3);
+	private ComboBox bankContractNumberComboBox = new ComboBox("Contract Number");
+	
+//	private GridLayout accountingInfoGridLayout = new GridLayout(1, 15);
 
 	private String generalExpenses = "General";
 	private String bcExpenses = "B.C.";
@@ -49,23 +59,95 @@ public class AccountingView extends VerticalLayout implements View {
 
 //		private String flatSetReserved = "Reserved";
 //		private String flatSetSolded = "Solded";
-	private String flatSetFree = "";
+//		private String flatSetFree = "";
+
+	private DecimalFormat decimalFormat = new DecimalFormat("0.00");
+
+	private double generalBC = 0.5; // 50%
+	private double generalCM = 0.5; // 50%
 
 	public AccountingView() throws SQLException {
 
-		accountingInfoGridLayout.setMargin(true);
-		accountingInfoGridLayout.setSizeFull();
-		addComponent(accountingInfoGridLayout);
+//		TimeZone.setDefault(TimeZone.getTimeZone("Europe/Kiev"));
+
+		setSizeFull();
+		setMargin(true);
+		setSpacing(true);
+
+		VerticalLayout accountingInfoGridVerticalLayout = new VerticalLayout();
+		accountingInfoGridVerticalLayout.setSizeFull();
+		accountingInfoGridVerticalLayout.setSpacing(true);
+		addComponent(accountingInfoGridVerticalLayout);
+
+		setExpandRatio(accountingInfoGridVerticalLayout, 1.0f);
+
+		addComponent(flatCheckBoxVerticalPanel());
 
 		flatGrid = flatGridFlatInfoView(flatService.getFlatsFromFlatTableAndFlatBuyerDB());
+		
 
-		accountingInfoGridLayout.addComponent(flatGrid, 0, 0, 0, 0);
 
-		accountingInfoGridLayout.addComponent(flatCheckBoxHorizontalLayout(), 0, 1, 0, 1);
+		accountingInfoGridVerticalLayout.addComponent(flatGrid);
 
-		accountingInfoGridLayout.addComponent(flatButtonHorizontalLayout(), 0, 2, 0, 2);
+		accountingInfoGridVerticalLayout.setExpandRatio(flatGrid, 1.0f);
+
+		accountingInfoGridVerticalLayout.addComponent(flatButtonHorizontalLayout());
+
 	}
 
+	
+	public Layout flatButtonHorizontalLayout() {
+
+		HorizontalLayout buttonHorizontalLayout = new HorizontalLayout();
+
+		buttonHorizontalLayout.setSpacing(true);
+		buttonHorizontalLayout.setHeight("50px");
+		buttonHorizontalLayout.setWidth("100%");
+
+		
+		
+		
+		buttonHorizontalLayout.addComponent(addExpensesButton.addExpensesButton(flatGrid));
+		
+		buttonHorizontalLayout.addComponent(expensesInfoButton.expensesInfoButton(flatGrid));
+
+		
+		
+		
+		
+		
+		
+		
+		
+		buttonHorizontalLayout.addComponent(reportButton());
+
+		buttonHorizontalLayout.addComponent(addDateButton());
+
+		buttonHorizontalLayout.addComponent(addBankInfoButton());
+
+		buttonHorizontalLayout.addComponent(paymentInfoButton());
+
+		buttonHorizontalLayout.addComponent(expensesButton());
+		
+		buttonHorizontalLayout.addComponent(expensesInfoButton());
+
+		buttonHorizontalLayout.addComponent(cancelButton());
+
+		return buttonHorizontalLayout;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	public Grid flatGridFlatInfoView(List<Flat> flatList) throws SQLException {
 
 		DecimalFormat decimalFormat = new DecimalFormat("0.00");
@@ -74,8 +156,7 @@ public class AccountingView extends VerticalLayout implements View {
 
 		flatGrid.setSizeFull();
 
-//			flatGrid.setSelectionMode(SelectionMode.MULTI);
-
+		flatGrid.addColumn("№", Integer.class);
 		flatGrid.addColumn("idFlatTable", Integer.class);
 		flatGrid.addColumn("buildingCorps", String.class);
 		flatGrid.addColumn("flatRooms", Integer.class);
@@ -120,7 +201,7 @@ public class AccountingView extends VerticalLayout implements View {
 
 			try {
 				Flat flatTable = flatService.getFlatByFlatIdFromFlatTable(idFlatTableFromSelectedRowFlatGrid);
-				Flat flatBuyer = flatService.getFlatByFlatIdFromFlatBuyerDB(idFlatTableFromSelectedRowFlatGrid);
+				Flat flatBuyer = flatService.getFlatByFlatIdFromFlatBuyerTable(idFlatTableFromSelectedRowFlatGrid);
 
 				detailsInfoWindowGrid.addRow(flatTable.getBuildingCorps(), flatTable.getFlatNumber(),
 						flatTable.getFlatArea(), flatBuyer.getFlatContractDate(), flatBuyer.getFlatCost());
@@ -255,10 +336,21 @@ public class AccountingView extends VerticalLayout implements View {
 		flatGrid.addColumn("m2, CMExpenses", Double.class);
 		flatGrid.addColumn("m2, totalCMExpenses", Double.class);
 
+//		flatGrid.addColumn("bankPaymentDate", Date.class);
+//		flatGrid.getColumn("bankPaymentDate").setHeaderCaption("Bank Payment Date")
+//				.setRenderer(new DateRenderer("%1$td.%1$tm.%1$tY"));
+		flatGrid.addColumn("bankPaymentSum", Double.class);
+		flatGrid.addColumn("m2, bank", Double.class);
+
+		flatGrid.getColumn("idFlatTable").setHidden(true);
+		flatGrid.getColumn("flatRooms").setHidden(true);
+		flatGrid.getColumn("flatFloor").setHidden(true);
 		flatGrid.getColumn("flatBuyerFirstname").setHidden(true);
 		flatGrid.getColumn("flatBuyerLastname").setHidden(true);
 		flatGrid.getColumn("flatBuyerSurname").setHidden(true);
 		flatGrid.getColumn("flatContractDate").setHidden(true);
+		flatGrid.getColumn("flatContractDate").setHeaderCaption("Flat Contract Date")
+				.setRenderer(new DateRenderer("%1$td.%1$tm.%1$tY"));
 		flatGrid.getColumn("flatContractNumber").setHidden(true);
 		flatGrid.getColumn("$, flatCost").setHidden(true);
 		flatGrid.getColumn("m2, flatCost").setHidden(true);
@@ -275,8 +367,9 @@ public class AccountingView extends VerticalLayout implements View {
 		flatGrid.getColumn("$, CMExpenses").setHidden(true);
 		flatGrid.getColumn("m2, CMExpenses").setHidden(true);
 
-		flatGrid.getColumn("flatContractDate").setHeaderCaption("Flat Contract Date")
-				.setRenderer(new DateRenderer("%1$td.%1$tm.%1$tY"));
+//		flatGrid.getColumn("bankPaymentDate").setHidden(true);
+		flatGrid.getColumn("bankPaymentSum").setHidden(true);
+		flatGrid.getColumn("m2, bank").setHidden(true);
 
 		double flatArea = 0;
 		int flatCost = 0;
@@ -291,6 +384,8 @@ public class AccountingView extends VerticalLayout implements View {
 		double mCMExpensesRow = 0;
 		double mTotalBCExpensesRow = 0;
 		double mTotalCMExpensesRow = 0;
+		double bankPaymentSum = 0;
+		int number = 1;
 
 		Iterator<Flat> itr = flatList.iterator();
 		while (itr.hasNext()) {
@@ -340,8 +435,9 @@ public class AccountingView extends VerticalLayout implements View {
 							cmExpenses) / flatCost_m$)
 					+ (flatService.getExpensesFlatInfoFromExpensesTableByFlatId(flatFromList.getIdFlatTable(),
 							generalExpenses) / flatCost_m$ / 2);
+			bankPaymentSum = bankPaymentSum + flatService.getPaymentSumFromBankTableByFlatTableId(flatFromList.getIdFlatTable());
 
-			flatGrid.addRow(flatFromList.getIdFlatTable(), flatFromList.getBuildingCorps(), flatFromList.getFlatRooms(),
+			flatGrid.addRow(number, flatFromList.getIdFlatTable(), flatFromList.getBuildingCorps(), flatFromList.getFlatRooms(),
 					flatFromList.getFlatFloor(), flatFromList.getFlatNumber(), flatFromList.getFlatArea(),
 					flatFromList.getFlatSet(), flatFromList.getFlatBuyerFirstname(),
 					flatFromList.getFlatBuyerLastname(), flatFromList.getFlatBuyerSurname(),
@@ -366,8 +462,18 @@ public class AccountingView extends VerticalLayout implements View {
 							cmExpenses)) / flatCost_m$
 							+ (flatService.getExpensesFlatInfoFromExpensesTableByFlatId(flatFromList.getIdFlatTable(),
 									generalExpenses)) / flatCost_m$ / 2
+							
+							
+							
+
+//					, flatFromList.getBankTablePaymentDate()
+//					, flatFromList.getBankTablePaymentSum()
+					, flatService.getPaymentSumFromBankTableByFlatTableId(flatFromList.getIdFlatTable())
+					, flatService.getPaymentSumFromBankTableByFlatTableId(flatFromList.getIdFlatTable())/flatFromList.getFlatArea()
 
 			);
+			
+			number++;
 		}
 
 		FooterRow flatGridFooterRow = flatGrid.prependFooterRow();
@@ -387,21 +493,49 @@ public class AccountingView extends VerticalLayout implements View {
 		flatGridFooterRow.getCell("m2, CMExpenses").setText(decimalFormat.format(mCMExpensesRow));
 		flatGridFooterRow.getCell("m2, totalCMExpenses").setText(decimalFormat.format(mTotalCMExpensesRow) + "m2"
 				+ ", left - " + decimalFormat.format(flatArea * 30 / 100 - mTotalCMExpensesRow) + "m2");
+		flatGridFooterRow.getCell("bankPaymentSum").setText(decimalFormat.format(bankPaymentSum));
 
 		return flatGrid;
 
 	}
 
-	public Layout flatCheckBoxHorizontalLayout() {
+	public Panel flatCheckBoxVerticalPanel() {
 
-		HorizontalLayout checkBoxHorizontalLayout = new HorizontalLayout();
-		checkBoxHorizontalLayout.setMargin(true);
-		checkBoxHorizontalLayout.setSpacing(true);
-		checkBoxHorizontalLayout.setSizeFull();
-//			addComponent(checkBoxHorizontalLayout);
+		Panel settingsCheckBoxPanel = new Panel("Settings");
+		settingsCheckBoxPanel.setWidth("200px");
+		settingsCheckBoxPanel.setHeight("100%");
 
+		VerticalLayout checkBoxVerticalLayout = new VerticalLayout();
+		checkBoxVerticalLayout.setMargin(true);
+		checkBoxVerticalLayout.setSpacing(true);
+		checkBoxVerticalLayout.setSizeFull();
+
+		settingsCheckBoxPanel.setContent(checkBoxVerticalLayout);
+
+		CheckBox flatInfoCheckBox = new CheckBox("Flat Info");
+		checkBoxVerticalLayout.addComponent(flatInfoCheckBox);
+		flatInfoCheckBox.setValue(false);
+		flatInfoCheckBox.addValueChangeListener(event -> {
+
+			if (flatInfoCheckBox.isEmpty()) {
+
+				flatGrid.getColumn("flatRooms").setHidden(true);
+				flatGrid.getColumn("flatFloor").setHidden(true);
+			} else {
+				flatGrid.getColumn("flatRooms").setHidden(false);
+				flatGrid.getColumn("flatFloor").setHidden(false);
+
+			}
+
+		});
+		
+		
+		
+		
+		
+		
 		CheckBox buyerInfoCheckBox = new CheckBox("Buyer Info");
-		checkBoxHorizontalLayout.addComponent(buyerInfoCheckBox);
+		checkBoxVerticalLayout.addComponent(buyerInfoCheckBox);
 		buyerInfoCheckBox.setValue(false);
 		buyerInfoCheckBox.addValueChangeListener(event -> {
 
@@ -420,7 +554,7 @@ public class AccountingView extends VerticalLayout implements View {
 		});
 
 		CheckBox contractInfoCheckBox = new CheckBox("Contract Info");
-		checkBoxHorizontalLayout.addComponent(contractInfoCheckBox);
+		checkBoxVerticalLayout.addComponent(contractInfoCheckBox);
 
 		contractInfoCheckBox.addValueChangeListener(event -> {
 			if (contractInfoCheckBox.isEmpty()) {
@@ -435,7 +569,7 @@ public class AccountingView extends VerticalLayout implements View {
 		});
 
 		CheckBox flatCostM2CheckBox = new CheckBox("Flat Cost m2");
-		checkBoxHorizontalLayout.addComponent(flatCostM2CheckBox);
+		checkBoxVerticalLayout.addComponent(flatCostM2CheckBox);
 		flatCostM2CheckBox.addValueChangeListener(event -> {
 
 			if (flatCostM2CheckBox.isEmpty()) {
@@ -448,7 +582,7 @@ public class AccountingView extends VerticalLayout implements View {
 		});
 
 		CheckBox flatCostCheckBox = new CheckBox("Flat Cost");
-		checkBoxHorizontalLayout.addComponent(flatCostCheckBox);
+		checkBoxVerticalLayout.addComponent(flatCostCheckBox);
 		flatCostCheckBox.addValueChangeListener(event -> {
 
 			if (flatCostCheckBox.isEmpty()) {
@@ -461,7 +595,7 @@ public class AccountingView extends VerticalLayout implements View {
 		});
 
 		CheckBox expensesCheckBox = new CheckBox("Expenses Info");
-		checkBoxHorizontalLayout.addComponent(expensesCheckBox);
+		checkBoxVerticalLayout.addComponent(expensesCheckBox);
 		expensesCheckBox.setValue(false);
 		expensesCheckBox.addValueChangeListener(event -> {
 
@@ -479,7 +613,7 @@ public class AccountingView extends VerticalLayout implements View {
 		});
 
 		CheckBox availableSumCheckBox = new CheckBox("Available Sum");
-		checkBoxHorizontalLayout.addComponent(availableSumCheckBox);
+		checkBoxVerticalLayout.addComponent(availableSumCheckBox);
 		availableSumCheckBox.setValue(false);
 		availableSumCheckBox.addValueChangeListener(event -> {
 
@@ -495,7 +629,7 @@ public class AccountingView extends VerticalLayout implements View {
 		});
 
 		CheckBox generalExpensesCheckBox = new CheckBox("General Expenses");
-		checkBoxHorizontalLayout.addComponent(generalExpensesCheckBox);
+		checkBoxVerticalLayout.addComponent(generalExpensesCheckBox);
 		generalExpensesCheckBox.setValue(false);
 		generalExpensesCheckBox.addValueChangeListener(event -> {
 
@@ -513,7 +647,7 @@ public class AccountingView extends VerticalLayout implements View {
 		});
 
 		CheckBox bcExpensesCheckBox = new CheckBox("B.C. Expenses");
-		checkBoxHorizontalLayout.addComponent(bcExpensesCheckBox);
+		checkBoxVerticalLayout.addComponent(bcExpensesCheckBox);
 		bcExpensesCheckBox.setValue(false);
 		bcExpensesCheckBox.addValueChangeListener(event -> {
 
@@ -531,7 +665,7 @@ public class AccountingView extends VerticalLayout implements View {
 		});
 
 		CheckBox cmExpensesCheckBox = new CheckBox("C.M. Expenses");
-		checkBoxHorizontalLayout.addComponent(cmExpensesCheckBox);
+		checkBoxVerticalLayout.addComponent(cmExpensesCheckBox);
 		cmExpensesCheckBox.setValue(false);
 		cmExpensesCheckBox.addValueChangeListener(event -> {
 
@@ -548,30 +682,26 @@ public class AccountingView extends VerticalLayout implements View {
 
 		});
 
-		return checkBoxHorizontalLayout;
+		CheckBox bankInfoCheckBox = new CheckBox("Bank Info");
+		checkBoxVerticalLayout.addComponent(bankInfoCheckBox);
+		bankInfoCheckBox.addValueChangeListener(event -> {
+
+			if (bankInfoCheckBox.isEmpty()) {
+
+				flatGrid.getColumn("bankPaymentSum").setHidden(true);
+				flatGrid.getColumn("m2, bank").setHidden(true);
+			} else {
+
+				flatGrid.getColumn("bankPaymentSum").setHidden(false);
+				flatGrid.getColumn("m2, bank").setHidden(false);
+			}
+
+		});
+
+		return settingsCheckBoxPanel;
 	}
 
-	public Layout flatButtonHorizontalLayout() {
 
-		HorizontalLayout buttonHorizontalLayout = new HorizontalLayout();
-//			buttonHorizontalLayout.setMargin(true);
-		buttonHorizontalLayout.setSpacing(true);
-		buttonHorizontalLayout.setSizeFull();
-
-//			buttonHorizontalLayout.addComponent(addFlatButton());
-
-//			buttonHorizontalLayout.addComponent(deleteFlatButton());
-
-//			buttonHorizontalLayout.addComponent(saleFlatButton());
-
-		buttonHorizontalLayout.addComponent(reportButton());
-
-		buttonHorizontalLayout.addComponent(expensesButton());
-
-		buttonHorizontalLayout.addComponent(cancelButton());
-
-		return buttonHorizontalLayout;
-	}
 
 	public Button expensesButton() {
 
@@ -579,7 +709,7 @@ public class AccountingView extends VerticalLayout implements View {
 //			income sum сума доходу
 //			available sum оступна сума
 
-		Button expensesButton = new Button("Expenses");
+		Button expensesButton = new Button("Add Expenses");
 		expensesButton.setSizeFull();
 
 		expensesButton.setEnabled(false);
@@ -587,114 +717,33 @@ public class AccountingView extends VerticalLayout implements View {
 		expensesButton.addClickListener(e -> {
 
 			Window expensesWindow = new Window("Expenses Window");
+			expensesWindow.setHeight("600px");
+			expensesWindow.setWidth("900px");
 
-			GridLayout expensesWindowGridLayout = new GridLayout(2, 3);
-//				expensesWindowGridLayout.setSizeFull();
+			
+			
+			
+			
+			
+			GridLayout expensesWindowGridLayout = new GridLayout(2, 11);
+			expensesWindowGridLayout.setSizeFull();
 			expensesWindowGridLayout.setSpacing(true);
 			expensesWindowGridLayout.setMargin(true);
 			expensesWindow.setContent(expensesWindowGridLayout);
 
-			Panel saleFlatInfoPanel = new Panel("Sale Flat Info");
-			expensesWindowGridLayout.addComponent(saleFlatInfoPanel, 1, 0, 1, 0);
-
-			Grid saleFlatInfoGrid = new Grid();
-			saleFlatInfoGrid.setSizeFull();
-			saleFlatInfoGrid.setHeight("230px");
-
 			Object selected = ((SingleSelectionModel) flatGrid.getSelectionModel()).getSelectedRow();
 			String idFlatTableFromSelectedRow = flatGrid.getContainerDataSource().getItem(selected)
 					.getItemProperty("idFlatTable").getValue().toString();
+			int idFlatTableIntFromSelectedRow = Integer.parseInt(idFlatTableFromSelectedRow);
 
-			saleFlatInfoGrid.addColumn("Name", String.class);
-			saleFlatInfoGrid.addColumn("Value", String.class);
-
-			Flat selectedFlat = new Flat();
-			try {
-				selectedFlat = flatService
-						.getFlatByFlatIdFromFlatTableAndFlatBuyerDB(Integer.parseInt(idFlatTableFromSelectedRow));
-			} catch (NumberFormatException | SQLException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-
-			List<com.vaadin.ui.Grid.Column> flatGridColumnNameList = new ArrayList<>();
-			flatGridColumnNameList = flatGrid.getColumns();
-
-			saleFlatInfoGrid.addRow(flatGridColumnNameList.get(1).getHeaderCaption(),
-					flatService.getFlatFromDbByColumnIndex(1, selectedFlat));
-			saleFlatInfoGrid.addRow(flatGridColumnNameList.get(4).getHeaderCaption(),
-					flatService.getFlatFromDbByColumnIndex(4, selectedFlat));
-			saleFlatInfoGrid.addRow(flatGridColumnNameList.get(5).getHeaderCaption(),
-					flatService.getFlatFromDbByColumnIndex(5, selectedFlat));
-			saleFlatInfoGrid.addRow(flatGridColumnNameList.get(10).getHeaderCaption(),
-					flatService.getFlatFromDbByColumnIndex(10, selectedFlat));
-			saleFlatInfoGrid.addRow(flatGridColumnNameList.get(12).getHeaderCaption(),
-					flatService.getFlatFromDbByColumnIndex(12, selectedFlat));
-
-//				expensesWindowGridLayout.addComponent(saleFlatInfoGrid, 1, 0, 1, 0);
-			saleFlatInfoPanel.setContent(saleFlatInfoGrid);
-
-			Panel expensesInfoPanel = new Panel("Expenses Info");
-			expensesWindowGridLayout.addComponent(expensesInfoPanel, 1, 1, 1, 1);
-
-			Grid expensesGrid = new Grid();
-			expensesGrid.setSizeFull();
-			expensesGrid.setHeight("230px");
-
-			expensesGrid.addColumn("expensesDate", Date.class);
-			expensesGrid.addColumn("sum", Integer.class);
-			expensesGrid.addColumn("category", String.class);
-			expensesGrid.addColumn("value", String.class);
-
-			expensesGrid.getColumn("expensesDate").setRenderer(new DateRenderer("%1$td.%1$tm.%1$tY"));
-
-			List<Flat> flatList = new ArrayList<>();
-
-			try {
-				flatList = flatService
-						.getExpensesByFlatIdFromExpensesTable(Integer.parseInt(idFlatTableFromSelectedRow));
-				Iterator<Flat> itr = flatList.iterator();
-				while (itr.hasNext()) {
-					Flat flatFromList = itr.next();
-
-					expensesGrid.addRow(flatFromList.getExpensesTableDate(), flatFromList.getExpensesTableSum(),
-							flatFromList.getExpensesTableCategory(), flatFromList.getExpensesTableValue());
-				}
-			} catch (NumberFormatException | SQLException e4) {
-				// TODO Auto-generated catch block
-				e4.printStackTrace();
-			}
-
-			expensesInfoPanel.setContent(expensesGrid);
-
-			Panel expensesPanel = new Panel("Add Expenses");
-			expensesWindowGridLayout.addComponent(expensesPanel, 0, 0, 0, 1);
+			Panel addExpensesWindowPanel = new Panel("Add Expenses");
+			addExpensesWindowPanel.setSizeFull();
+			expensesWindowGridLayout.addComponent(addExpensesWindowPanel, 0, 0, 0, 9);
 
 			FormLayout expensesWindowExpensesFormLayout = new FormLayout();
 			expensesWindowExpensesFormLayout.setMargin(true);
-			expensesPanel.setContent(expensesWindowExpensesFormLayout);
-
-			TextField availableSumTextField = new TextField("Available Sum");
-			availableSumTextField.setEnabled(false);
-
-			int flatCost = Integer.parseInt(flatService.getFlatFromDbByColumnIndex(12, selectedFlat));
-			int expensesGeneral;
-			try {
-				expensesGeneral = flatService.getExpensesFlatInfoFromExpensesTableByFlatId(
-						Integer.parseInt(idFlatTableFromSelectedRow), "General");
-				int expensesBC = flatService.getExpensesFlatInfoFromExpensesTableByFlatId(
-						Integer.parseInt(idFlatTableFromSelectedRow), "B.C.");
-				int expensesCM = flatService.getExpensesFlatInfoFromExpensesTableByFlatId(
-						Integer.parseInt(idFlatTableFromSelectedRow), "C.M.");
-
-				int availableSum = flatCost - expensesGeneral - expensesBC - expensesCM;
-				availableSumTextField.setValue(Integer.toString(availableSum));
-			} catch (NumberFormatException | SQLException e3) {
-				// TODO Auto-generated catch block
-				e3.printStackTrace();
-			}
-
-			expensesWindowExpensesFormLayout.addComponent(availableSumTextField);
+			expensesWindowExpensesFormLayout.setSizeFull();
+			addExpensesWindowPanel.setContent(expensesWindowExpensesFormLayout);
 
 			DateField expensesDateField = new DateField("Expenses Date");
 			expensesDateField.setValue(new java.util.Date());
@@ -707,14 +756,14 @@ public class AccountingView extends VerticalLayout implements View {
 
 			expensesWindowExpensesFormLayout.addComponent(expensesSumTextField);
 
-			ComboBox expensesCategoryComboBox = new ComboBox("Expenses Category ComboBox");
+			ComboBox expensesCategoryComboBox = new ComboBox("Expenses Category");
 			expensesCategoryComboBox.addItem("General");
 			expensesCategoryComboBox.addItem("B.C.");
 			expensesCategoryComboBox.addItem("C.M.");
 
 			expensesWindowExpensesFormLayout.addComponent(expensesCategoryComboBox);
 
-			ComboBox expensesValueComboBox = new ComboBox("Expenses Value ComboBox");
+			ComboBox expensesValueComboBox = new ComboBox("Expenses Value");
 			expensesValueComboBox.addItem("Податки, що залишилися на нашій Львівській фірмі ЛТБ (прогонка квартир)");
 			expensesValueComboBox.addItem("Маклер і оформлення в нотаріуса");
 			expensesValueComboBox.addItem("Переведено на УМБ ФІНАНС (Козловському)");
@@ -723,24 +772,93 @@ public class AccountingView extends VerticalLayout implements View {
 
 			expensesWindowExpensesFormLayout.addComponent(expensesValueComboBox);
 
-			TextArea expensesValueTextArea = new TextArea("Expenses Value TextArea");
+			TextArea expensesValueTextArea = new TextArea("Expenses Value");
+			expensesValueTextArea.setHeight("60px");
 
 			expensesWindowExpensesFormLayout.addComponent(expensesValueTextArea);
 
-			HorizontalLayout expensesWindowButtonHorizontalLayout = new HorizontalLayout();
-//				expensesWindowButtonHorizontalLayout.setMargin(true);
-			expensesWindowButtonHorizontalLayout.setSpacing(true);
-			expensesWindowButtonHorizontalLayout.setSizeFull();
-//				spendWindowHorizontalLayout.setSpacing(true);
-//				spendWindowHorizontalLayout.setSizeFull();
+			Panel expensesWindowInfoPanel = new Panel();
+			expensesWindowInfoPanel.setSizeFull();
 
-			expensesWindowGridLayout.addComponent(expensesWindowButtonHorizontalLayout, 0, 2, 0, 2);
+			expensesWindowGridLayout.addComponent(expensesWindowInfoPanel, 1, 0, 1, 9);
+
+			Grid expensesWindowGrid = new Grid();
+			expensesWindowGrid.setSizeFull();
+
+			expensesWindowGrid.addColumn("expensesDate", Date.class);
+			expensesWindowGrid.addColumn("sum", Integer.class);
+			expensesWindowGrid.addColumn("category", String.class);
+			expensesWindowGrid.addColumn("value", String.class);
+
+			expensesWindowGrid.getColumn("expensesDate").setRenderer(new DateRenderer("%1$td.%1$tm.%1$tY"));
+
+			List<Flat> flatList = new ArrayList<>();
+
+			int expensesSum = 0;
+
+			try {
+				flatList = flatService
+						.getExpensesByFlatIdFromExpensesTable(Integer.parseInt(idFlatTableFromSelectedRow));
+				Iterator<Flat> itr = flatList.iterator();
+				while (itr.hasNext()) {
+					Flat flatFromList = itr.next();
+
+					expensesWindowGrid.addRow(flatFromList.getExpensesTableDate(), flatFromList.getExpensesTableSum(),
+							flatFromList.getExpensesTableCategory(), flatFromList.getExpensesTableValue());
+
+					expensesSum = expensesSum + flatFromList.getExpensesTableSum();
+
+				}
+			} catch (NumberFormatException | SQLException e4) {
+				// TODO Auto-generated catch block
+				e4.printStackTrace();
+			}
+
+			FooterRow expensesWindowGridFooterRow = expensesWindowGrid.prependFooterRow();
+			expensesWindowGridFooterRow.getCell("expensesDate").setText("Total: ");
+			expensesWindowGridFooterRow.getCell("sum").setText(decimalFormat.format(expensesSum).replace(",", "."));
+
+			expensesWindowInfoPanel.setContent(expensesWindowGrid);
+
+			Flat selectedSoldedFlatBuyerInfo = new Flat();
+
+			try {
+				selectedSoldedFlatBuyerInfo = flatService
+						.getFlatByFlatIdFromFlatBuyerTable(idFlatTableIntFromSelectedRow);
+				int flatCost = selectedSoldedFlatBuyerInfo.getFlatCost();
+				int expensesGeneral = flatService
+						.getExpensesFlatInfoFromExpensesTableByFlatId(idFlatTableIntFromSelectedRow, "General");
+				int expensesBC = flatService.getExpensesFlatInfoFromExpensesTableByFlatId(idFlatTableIntFromSelectedRow,
+						"B.C.");
+				int expensesCM = flatService.getExpensesFlatInfoFromExpensesTableByFlatId(idFlatTableIntFromSelectedRow,
+						"C.M.");
+
+				int availableSum = flatCost - expensesGeneral - expensesBC - expensesCM;
+
+				expensesWindowInfoPanel.setCaption("Expenses Info (B.C. = " + expensesBC + "$: C.M. = " + expensesCM
+						+ "$: General = " + expensesGeneral + "$)");
+				addExpensesWindowPanel.setCaption("Add Expenses (Available Sum = " + availableSum + "$)");
+
+			} catch (SQLException e3) {
+				// TODO Auto-generated catch block
+				e3.printStackTrace();
+			}
+
+			HorizontalLayout expensesWindowButtonHorizontalLayout = new HorizontalLayout();
+
+			expensesWindowButtonHorizontalLayout.setSpacing(true);
+			expensesWindowButtonHorizontalLayout.setHeight("40px");
+			expensesWindowButtonHorizontalLayout.setWidth("100%");
+
+			expensesWindowGridLayout.addComponent(expensesWindowButtonHorizontalLayout, 0, 10, 1, 10);
+			expensesWindowGridLayout.setComponentAlignment(expensesWindowButtonHorizontalLayout,
+					Alignment.BOTTOM_CENTER);
 
 			Button expensesAddButton = new Button("Add Expenses");
 			expensesAddButton.setSizeFull();
 			expensesAddButton.addClickListener(e1 -> {
-				expensesGrid.addRow(expensesDateField.getValue(), Integer.parseInt(expensesSumTextField.getValue()),
-						expensesCategoryComboBox.getValue(),
+				expensesWindowGrid.addRow(expensesDateField.getValue(),
+						Integer.parseInt(expensesSumTextField.getValue()), expensesCategoryComboBox.getValue(),
 						expensesValueComboBox.getValue() + " " + expensesValueTextArea.getValue());
 
 				Flat expensesFlat = new Flat();
@@ -764,6 +882,9 @@ public class AccountingView extends VerticalLayout implements View {
 
 			Button expensesCancelButton = new Button("Cancel");
 			expensesCancelButton.setSizeFull();
+			expensesCancelButton.addClickListener(click -> {
+				expensesWindow.close();
+			});
 			expensesWindowButtonHorizontalLayout.addComponent(expensesCancelButton);
 
 			expensesWindow.center();
@@ -778,6 +899,781 @@ public class AccountingView extends VerticalLayout implements View {
 
 		return expensesButton;
 	}
+	
+	
+	public Button expensesInfoButton() {
+
+//		expenses sum сума витрат
+//		income sum сума доходу
+//		available sum оступна сума
+
+	Button expensesInfoButton = new Button("Expenses Info");
+	expensesInfoButton.setSizeFull();
+
+	expensesInfoButton.setEnabled(false);
+
+	expensesInfoButton.addClickListener(e -> {
+
+		Window expensesWindow = new Window("Expenses Window");
+		expensesWindow.setHeight("600px");
+		expensesWindow.setWidth("900px");
+
+		GridLayout expensesWindowGridLayout = new GridLayout(2, 11);
+		expensesWindowGridLayout.setSizeFull();
+		expensesWindowGridLayout.setSpacing(true);
+		expensesWindowGridLayout.setMargin(true);
+		expensesWindow.setContent(expensesWindowGridLayout);
+
+		Object selected = ((SingleSelectionModel) flatGrid.getSelectionModel()).getSelectedRow();
+		String idFlatTableFromSelectedRow = flatGrid.getContainerDataSource().getItem(selected)
+				.getItemProperty("idFlatTable").getValue().toString();
+		int idFlatTableIntFromSelectedRow = Integer.parseInt(idFlatTableFromSelectedRow);
+
+		Panel addExpensesWindowPanel = new Panel("Add Expenses");
+		addExpensesWindowPanel.setSizeFull();
+		expensesWindowGridLayout.addComponent(addExpensesWindowPanel, 0, 0, 0, 9);
+
+		FormLayout expensesWindowExpensesFormLayout = new FormLayout();
+		expensesWindowExpensesFormLayout.setMargin(true);
+		expensesWindowExpensesFormLayout.setSizeFull();
+		addExpensesWindowPanel.setContent(expensesWindowExpensesFormLayout);
+
+		DateField expensesDateField = new DateField("Expenses Date");
+		expensesDateField.setValue(new java.util.Date());
+
+		expensesDateField.setDateFormat("dd.MM.yyyy");
+
+		expensesWindowExpensesFormLayout.addComponent(expensesDateField);
+
+		TextField expensesSumTextField = new TextField("Expenses Sum");
+
+		expensesWindowExpensesFormLayout.addComponent(expensesSumTextField);
+
+		ComboBox expensesCategoryComboBox = new ComboBox("Expenses Category");
+		expensesCategoryComboBox.addItem("General");
+		expensesCategoryComboBox.addItem("B.C.");
+		expensesCategoryComboBox.addItem("C.M.");
+
+		expensesWindowExpensesFormLayout.addComponent(expensesCategoryComboBox);
+
+		ComboBox expensesValueComboBox = new ComboBox("Expenses Value");
+		expensesValueComboBox.addItem("Податки, що залишилися на нашій Львівській фірмі ЛТБ (прогонка квартир)");
+		expensesValueComboBox.addItem("Маклер і оформлення в нотаріуса");
+		expensesValueComboBox.addItem("Переведено на УМБ ФІНАНС (Козловському)");
+		expensesValueComboBox.addItem("Передано В.С.");
+		expensesValueComboBox.addItem("Передано С.М.");
+
+		expensesWindowExpensesFormLayout.addComponent(expensesValueComboBox);
+
+		TextArea expensesValueTextArea = new TextArea("Expenses Value");
+		expensesValueTextArea.setHeight("60px");
+
+		expensesWindowExpensesFormLayout.addComponent(expensesValueTextArea);
+
+		Panel expensesWindowInfoPanel = new Panel();
+		expensesWindowInfoPanel.setSizeFull();
+
+		expensesWindowGridLayout.addComponent(expensesWindowInfoPanel, 1, 0, 1, 9);
+
+		Grid expensesWindowGrid = new Grid();
+		expensesWindowGrid.setSizeFull();
+
+		expensesWindowGrid.addColumn("expensesDate", Date.class);
+		expensesWindowGrid.addColumn("sum", Integer.class);
+		expensesWindowGrid.addColumn("category", String.class);
+		expensesWindowGrid.addColumn("value", String.class);
+
+		expensesWindowGrid.getColumn("expensesDate").setRenderer(new DateRenderer("%1$td.%1$tm.%1$tY"));
+
+		List<Flat> flatList = new ArrayList<>();
+
+		int expensesSum = 0;
+
+		try {
+			flatList = flatService
+					.getExpensesByFlatIdFromExpensesTable(Integer.parseInt(idFlatTableFromSelectedRow));
+			Iterator<Flat> itr = flatList.iterator();
+			while (itr.hasNext()) {
+				Flat flatFromList = itr.next();
+
+				expensesWindowGrid.addRow(flatFromList.getExpensesTableDate(), flatFromList.getExpensesTableSum(),
+						flatFromList.getExpensesTableCategory(), flatFromList.getExpensesTableValue());
+
+				expensesSum = expensesSum + flatFromList.getExpensesTableSum();
+
+			}
+		} catch (NumberFormatException | SQLException e4) {
+			// TODO Auto-generated catch block
+			e4.printStackTrace();
+		}
+
+		FooterRow expensesWindowGridFooterRow = expensesWindowGrid.prependFooterRow();
+		expensesWindowGridFooterRow.getCell("expensesDate").setText("Total: ");
+		expensesWindowGridFooterRow.getCell("sum").setText(decimalFormat.format(expensesSum).replace(",", "."));
+
+		expensesWindowInfoPanel.setContent(expensesWindowGrid);
+
+		Flat selectedSoldedFlatBuyerInfo = new Flat();
+
+		try {
+			selectedSoldedFlatBuyerInfo = flatService
+					.getFlatByFlatIdFromFlatBuyerTable(idFlatTableIntFromSelectedRow);
+			int flatCost = selectedSoldedFlatBuyerInfo.getFlatCost();
+			int expensesGeneral = flatService
+					.getExpensesFlatInfoFromExpensesTableByFlatId(idFlatTableIntFromSelectedRow, "General");
+			int expensesBC = flatService.getExpensesFlatInfoFromExpensesTableByFlatId(idFlatTableIntFromSelectedRow,
+					"B.C.");
+			int expensesCM = flatService.getExpensesFlatInfoFromExpensesTableByFlatId(idFlatTableIntFromSelectedRow,
+					"C.M.");
+
+			int availableSum = flatCost - expensesGeneral - expensesBC - expensesCM;
+
+			expensesWindowInfoPanel.setCaption("Expenses Info (B.C. = " + expensesBC + "$: C.M. = " + expensesCM
+					+ "$: General = " + expensesGeneral + "$)");
+			addExpensesWindowPanel.setCaption("Add Expenses (Available Sum = " + availableSum + "$)");
+
+		} catch (SQLException e3) {
+			// TODO Auto-generated catch block
+			e3.printStackTrace();
+		}
+
+		HorizontalLayout expensesWindowButtonHorizontalLayout = new HorizontalLayout();
+
+		expensesWindowButtonHorizontalLayout.setSpacing(true);
+		expensesWindowButtonHorizontalLayout.setHeight("40px");
+		expensesWindowButtonHorizontalLayout.setWidth("100%");
+
+		expensesWindowGridLayout.addComponent(expensesWindowButtonHorizontalLayout, 0, 10, 1, 10);
+		expensesWindowGridLayout.setComponentAlignment(expensesWindowButtonHorizontalLayout,
+				Alignment.BOTTOM_CENTER);
+
+		Button expensesAddButton = new Button("Add Expenses");
+		expensesAddButton.setSizeFull();
+		expensesAddButton.addClickListener(e1 -> {
+			expensesWindowGrid.addRow(expensesDateField.getValue(),
+					Integer.parseInt(expensesSumTextField.getValue()), expensesCategoryComboBox.getValue(),
+					expensesValueComboBox.getValue() + " " + expensesValueTextArea.getValue());
+
+			Flat expensesFlat = new Flat();
+			expensesFlat.setIdFlatTable(Integer.parseInt(idFlatTableFromSelectedRow));
+			expensesFlat.setExpensesTableDate(expensesDateField.getValue());
+			expensesFlat.setExpensesTableSum(Integer.parseInt(expensesSumTextField.getValue()));
+			expensesFlat.setExpensesTableCategory(expensesCategoryComboBox.getValue().toString());
+			expensesFlat.setExpensesTableValue(
+					expensesValueComboBox.getValue() + " " + expensesValueTextArea.getValue());
+
+			try {
+				flatService.createExpensesFlat(expensesFlat);
+			} catch (SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+
+		});
+
+		expensesWindowButtonHorizontalLayout.addComponent(expensesAddButton);
+
+		Button expensesCancelButton = new Button("Cancel");
+		expensesCancelButton.setSizeFull();
+		expensesCancelButton.addClickListener(click -> {
+			expensesWindow.close();
+		});
+		expensesWindowButtonHorizontalLayout.addComponent(expensesCancelButton);
+
+		expensesWindow.center();
+
+		UI.getCurrent().addWindow(expensesWindow);
+
+	});
+
+	flatGrid.addSelectionListener(SelectionEvent -> {
+		expensesInfoButton.setEnabled(true);
+	});
+
+	return expensesInfoButton;
+}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	public Grid bankInfoWindowPaymentInfoGrid(List<Flat> paymentList) {
+
+		Grid bankInfoWindowPaymentInfoGrid = new Grid();
+		bankInfoWindowPaymentInfoGrid.setSizeFull();
+
+		bankInfoWindowPaymentInfoGrid.addColumn("paymentDate", String.class);
+		bankInfoWindowPaymentInfoGrid.addColumn("paymentSum", Double.class);
+		bankInfoWindowPaymentInfoGrid.addColumn("contractNumber", String.class);
+		bankInfoWindowPaymentInfoGrid.addColumn("payer", String.class);
+
+		double paymentSum = 0;
+
+		try {
+
+			Iterator<Flat> itr = paymentList.iterator();
+			while (itr.hasNext()) {
+				Flat flatFromList = itr.next();
+
+				paymentSum = paymentSum + flatFromList.getBankTablePaymentSum();
+
+				bankInfoWindowPaymentInfoGrid.addRow(
+						flatService.dateFormatForGrid(flatFromList.getBankTablePaymentDate()),
+						flatFromList.getBankTablePaymentSum(),
+						flatService.getFlatByFlatIdFromFlatBuyerTable(flatFromList.getIdFlatTable())
+								.getFlatContractNumber()
+								+ " from "
+								+ flatService.getFlatByFlatIdFromFlatBuyerTable(flatFromList.getIdFlatTable())
+										.getFlatContractDate(),
+						flatService.getFlatByFlatIdFromFlatBuyerTable(flatFromList.getIdFlatTable())
+								.getFlatBuyerFirstname()
+								+ " "
+								+ flatService.getFlatByFlatIdFromFlatBuyerTable(flatFromList.getIdFlatTable())
+										.getFlatBuyerLastname()
+								+ " " + flatService.getFlatByFlatIdFromFlatBuyerTable(flatFromList.getIdFlatTable())
+										.getFlatBuyerSurname()
+
+				);
+
+			}
+			FooterRow bankInfoWindowPaymentInfoGridFooterRow = bankInfoWindowPaymentInfoGrid.prependFooterRow();
+
+			bankInfoWindowPaymentInfoGridFooterRow.getCell("paymentDate").setText("Total: ");
+			bankInfoWindowPaymentInfoGridFooterRow.getCell("paymentSum")
+					.setText(decimalFormat.format(paymentSum).replace(",", ".") + " hrn");
+
+		} catch (SQLException e3) {
+			// TODO Auto-generated catch block
+			e3.printStackTrace();
+		}
+
+		return bankInfoWindowPaymentInfoGrid;
+	}
+
+	
+	public ComboBox bankInfoWindowContractComboBox() {
+		
+//		ComboBox bankContractNumberComboBox = new ComboBox("Contract Number");
+		
+		List<Flat> flatBuyerList = new ArrayList<>();
+
+		try {
+			flatBuyerList = flatService.getFlatsFromFlatBuyerTable();
+			Iterator<Flat> iter = flatBuyerList.iterator();
+			while (iter.hasNext()) {
+				Flat flatFromList = iter.next();
+
+				bankContractNumberComboBox.addItem(flatFromList.getFlatContractNumber() + " from "
+
+						+ flatService.dateFormatForGrid(flatFromList.getFlatContractDate()));
+				
+				bankContractNumberComboBox.setNullSelectionAllowed(false);
+			}
+			
+		} catch (SQLException e3) {
+			// TODO Auto-generated catch block
+			e3.printStackTrace();
+		}
+		
+
+		return bankContractNumberComboBox;
+	}
+	
+	
+	
+	
+	
+	
+	public Button paymentInfoButton() {
+
+		Button paymentInfoButton = new Button("Payment Info");
+		paymentInfoButton.setSizeFull();
+
+		paymentInfoButton.addClickListener(e1 -> {
+
+			Window bankInfoWindow = new Window("Payment Info");
+			bankInfoWindow.setWidth("700px");
+			bankInfoWindow.setHeight("500px");
+
+			VerticalLayout bankInfoWindowVerticalLayout = new VerticalLayout();
+			bankInfoWindowVerticalLayout.setMargin(true);
+			bankInfoWindowVerticalLayout.setSizeFull();
+			bankInfoWindow.setContent(bankInfoWindowVerticalLayout);
+
+			HorizontalLayout bankInfoWindowDateHorizontalLayout = new HorizontalLayout();
+			bankInfoWindowDateHorizontalLayout.setSpacing(true);
+			bankInfoWindowDateHorizontalLayout.setHeight("65px");
+			bankInfoWindowDateHorizontalLayout.setWidth("100%");
+			bankInfoWindowVerticalLayout.addComponent(bankInfoWindowDateHorizontalLayout);
+
+
+			
+			DateField bankPaymentDateFromDateField = new DateField("From Payment Date");
+			bankPaymentDateFromDateField.setValue(new java.util.Date());
+			bankPaymentDateFromDateField.setDateFormat("dd.MM.yyyy");
+			bankInfoWindowDateHorizontalLayout.addComponent(bankPaymentDateFromDateField);
+			bankInfoWindowDateHorizontalLayout.setComponentAlignment(bankPaymentDateFromDateField, Alignment.BOTTOM_CENTER);
+
+
+			
+			DateField bankPaymentDateToDateField = new DateField("To Payment Date");
+			bankPaymentDateToDateField.setValue(new java.util.Date());
+			bankPaymentDateToDateField.setDateFormat("dd.MM.yyyy");
+			bankInfoWindowDateHorizontalLayout.addComponent(bankPaymentDateToDateField);
+			bankInfoWindowDateHorizontalLayout.setComponentAlignment(bankPaymentDateToDateField, Alignment.BOTTOM_CENTER);
+
+			
+			
+			HorizontalLayout bankInfoWindowContractHorizontalLayout = new HorizontalLayout();
+			bankInfoWindowContractHorizontalLayout.setSpacing(true);
+			bankInfoWindowContractHorizontalLayout.setHeight("65px");
+			bankInfoWindowContractHorizontalLayout.setWidth("100%");
+			bankInfoWindowVerticalLayout.addComponent(bankInfoWindowContractHorizontalLayout);
+
+			ComboBox bankInfoWindowContractComboBox = new ComboBox();
+			bankInfoWindowContractComboBox = bankInfoWindowContractComboBox();
+			bankInfoWindowContractHorizontalLayout.addComponent(bankInfoWindowContractComboBox);
+			bankInfoWindowContractHorizontalLayout.setComponentAlignment(bankInfoWindowContractComboBox, Alignment.BOTTOM_CENTER);
+			
+			
+			
+			
+			
+			
+			
+			HorizontalLayout bankInfoWindowPreGridHorizontalLayout = new HorizontalLayout();
+			bankInfoWindowPreGridHorizontalLayout.setHeight("5px");
+			bankInfoWindowPreGridHorizontalLayout.setWidth("100%");
+			bankInfoWindowVerticalLayout.addComponent(bankInfoWindowPreGridHorizontalLayout);
+
+			HorizontalLayout bankInfoWindowGridHorizontalLayout = new HorizontalLayout();
+			bankInfoWindowGridHorizontalLayout.setSizeFull();
+			bankInfoWindowVerticalLayout.addComponent(bankInfoWindowGridHorizontalLayout);
+			bankInfoWindowVerticalLayout.setExpandRatio(bankInfoWindowGridHorizontalLayout, 1.0f);
+
+			Button bankInfoWindowSelectDateButton = new Button("Select");
+//			bankInfoWindowSelectButton.setHeight("40px");
+			bankInfoWindowSelectDateButton.setWidth("185px");
+//			bankInfoWindowSelectDateButton.setWidth("100%");
+//			bankInfoWindowSelectButton.setSizeFull();
+			bankInfoWindowDateHorizontalLayout.addComponent(bankInfoWindowSelectDateButton);
+			bankInfoWindowDateHorizontalLayout.setComponentAlignment(bankInfoWindowSelectDateButton, Alignment.BOTTOM_CENTER);
+
+			bankInfoWindowSelectDateButton.addClickListener(click -> {
+
+				bankInfoWindowGridHorizontalLayout.removeAllComponents();
+
+				String fromDate = flatService.dateFormatForDB(bankPaymentDateFromDateField.getValue());
+				String toDate = flatService.dateFormatForDB(bankPaymentDateToDateField.getValue());
+
+				try {
+					bankInfoWindowGridHorizontalLayout.addComponent(bankInfoWindowPaymentInfoGrid(
+							flatService.getSelectedItemsByDateFromBankTable(fromDate, toDate)));
+
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			});
+
+			
+			Button bankInfoWindowSelectContractButton = new Button("Select");
+			bankInfoWindowSelectContractButton.setEnabled(false);
+//			bankInfoWindowSelectButton.setHeight("40px");
+			bankInfoWindowSelectContractButton.setWidth("185px");
+//			bankInfoWindowSelectContractButton.setWidth("100%");
+//			bankInfoWindowSelectButton.setSizeFull();
+			bankInfoWindowContractHorizontalLayout.addComponent(bankInfoWindowSelectContractButton);
+			bankInfoWindowContractHorizontalLayout.setComponentAlignment(bankInfoWindowSelectContractButton, Alignment.BOTTOM_CENTER);
+			
+			bankInfoWindowContractComboBox().addValueChangeListener(event -> {
+				
+				String contractTextFromComboBox = bankInfoWindowContractComboBox().getValue().toString();
+				
+				if (contractTextFromComboBox.equals("")) {
+					bankInfoWindowSelectContractButton.setEnabled(false);
+				}
+				else {
+					bankInfoWindowSelectContractButton.setEnabled(true);
+				}
+
+			});
+			
+			
+			bankInfoWindowSelectContractButton.addClickListener(click -> {
+
+				bankInfoWindowGridHorizontalLayout.removeAllComponents();
+
+				String contractTextFromComboBox = bankInfoWindowContractComboBox().getValue().toString();
+				
+				String[] contractNumberDate = contractTextFromComboBox.split(" from ");
+				
+				String contractDate = flatService.dateFormatForDB(contractNumberDate[1]);
+				
+				try {
+
+					bankInfoWindowGridHorizontalLayout.addComponent(bankInfoWindowPaymentInfoGrid(
+							flatService.getFlatsFromBankTableByIdFlatTable(flatService.getFlatFromFlatBuyerTableByContract(contractNumberDate[0], contractDate).getIdFlatTable())));
+					
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			});
+			
+			
+			
+			
+			Button bankInfoWindowSelectAllButton = new Button("Select All");
+//			bankInfoWindowSelectAllButton.setSizeFull();
+			bankInfoWindowSelectAllButton.setWidth("185px");
+//			bankInfoWindowSelectAllButton.setWidth("100%");
+			bankInfoWindowContractHorizontalLayout.addComponent(bankInfoWindowSelectAllButton);
+			bankInfoWindowContractHorizontalLayout.setComponentAlignment(bankInfoWindowSelectAllButton, Alignment.BOTTOM_CENTER);
+
+			bankInfoWindowSelectAllButton.addClickListener(click -> {
+
+				bankInfoWindowGridHorizontalLayout.removeAllComponents();
+
+				List<Flat> paymentList = new ArrayList<>();
+				try {
+					paymentList = flatService.getPaymentsFromBankTable();
+					bankInfoWindowGridHorizontalLayout.addComponent(bankInfoWindowPaymentInfoGrid(paymentList));
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			});
+
+			bankInfoWindow.center();
+
+			UI.getCurrent().addWindow(bankInfoWindow);
+
+		});
+
+		return paymentInfoButton;
+	}
+
+////////////////////////////	
+	public Button addDateButton() {
+
+		Button addDateButton = new Button("Add Date");
+		addDateButton.setSizeFull();
+
+		addDateButton.addClickListener(e1 -> {
+
+			Window bankInfoWindow = new Window("Add Date");
+			bankInfoWindow.setWidth("600px");
+			bankInfoWindow.setHeight("410px");
+
+			VerticalLayout bankInfoWindowVerticalLayout = new VerticalLayout();
+
+			bankInfoWindow.setContent(bankInfoWindowVerticalLayout);
+
+			FormLayout bankInfoWindowFormLayout = new FormLayout();
+			bankInfoWindowFormLayout.setSizeFull();
+			bankInfoWindowFormLayout.setMargin(true);
+
+			bankInfoWindowFormLayout.setSizeFull();
+
+			DateField bankPaymentDateDateField = new DateField("Payment Date");
+			bankPaymentDateDateField.setValue(new java.util.Date());
+
+			bankPaymentDateDateField.setResolution(Resolution.MINUTE);
+
+			bankPaymentDateDateField.setDateFormat("dd.MM.yyyy HH:mm:ss");
+			bankInfoWindowFormLayout.addComponent(bankPaymentDateDateField);
+
+			bankInfoWindowVerticalLayout.addComponent(bankInfoWindowFormLayout);
+
+			HorizontalLayout bankInfoWindowHorizontalLayout = new HorizontalLayout();
+			bankInfoWindowHorizontalLayout.setSizeFull();
+			bankInfoWindowHorizontalLayout.setMargin(true);
+			bankInfoWindowHorizontalLayout.setSpacing(true);
+			bankInfoWindowVerticalLayout.addComponent(bankInfoWindowHorizontalLayout);
+
+			Button bankInfoWindowPaymentButton = new Button("Add Date");
+			bankInfoWindowPaymentButton.setSizeFull();
+
+			bankInfoWindowPaymentButton.addClickListener(click -> {
+
+				Flat flat = new Flat();
+
+				try {
+					flat.setNew_date_tablecol(bankPaymentDateDateField.getValue());
+				} catch (ParseException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+				flat.setNew_date_tablecol1(bankPaymentDateDateField.getValue());
+
+				try {
+					flatService.createDateTable(flat);
+				} catch (SQLException | ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			});
+
+			bankInfoWindowHorizontalLayout.addComponent(bankInfoWindowPaymentButton);
+
+			Button bankInfoWindowShowButton = new Button("Show Date");
+			bankInfoWindowShowButton.setSizeFull();
+
+			bankInfoWindowShowButton.addClickListener(click -> {
+
+				Flat flat = new Flat();
+
+				try {
+					try {
+						flat = flatService.getDateFromDateTable(2);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+//
+				try {
+					DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+					String dateStr = dateFormat.format(flat.getNew_date_tablecol());
+
+					Grid dateGrid = new Grid("Date");
+
+					dateGrid.addColumn("col", String.class);
+					;
+					dateGrid.addColumn("col1", Date.class);
+
+					dateGrid.addRow(dateStr
+//	
+					, flat.getNew_date_tablecol1());
+					bankInfoWindowVerticalLayout.addComponent(dateGrid);
+
+				} catch (ParseException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+
+			});
+
+			bankInfoWindowHorizontalLayout.addComponent(bankInfoWindowShowButton);
+
+			Button bankInfoWindowCancelButton = new Button("Cancel");
+			bankInfoWindowCancelButton.setSizeFull();
+
+			bankInfoWindowCancelButton.addClickListener(event -> {
+				bankInfoWindow.close();
+			});
+
+			bankInfoWindowHorizontalLayout.addComponent(bankInfoWindowCancelButton);
+
+			bankInfoWindow.center();
+
+			UI.getCurrent().addWindow(bankInfoWindow);
+
+		});
+
+		return addDateButton;
+	}
+////////////////////////////
+
+	public Button addBankInfoButton() {
+
+		Button addBankInfoButton = new Button("Add Bank Info");
+		addBankInfoButton.setSizeFull();
+
+		addBankInfoButton.addClickListener(e1 -> {
+
+			Window bankInfoWindow = new Window("Bank Info");
+			bankInfoWindow.setWidth("450px");
+			bankInfoWindow.setHeight("410px");
+
+			VerticalLayout bankInfoWindowVerticalLayout = new VerticalLayout();
+
+			bankInfoWindow.setContent(bankInfoWindowVerticalLayout);
+
+			FormLayout bankInfoWindowFormLayout = new FormLayout();
+			bankInfoWindowFormLayout.setSizeFull();
+			bankInfoWindowFormLayout.setMargin(true);
+
+			bankInfoWindowFormLayout.setSizeFull();
+
+			DateField bankPaymentDateDateField = new DateField("Payment Date");
+			bankPaymentDateDateField.setValue(new java.util.Date());
+
+			bankPaymentDateDateField.setResolution(Resolution.MINUTE);
+
+			bankPaymentDateDateField.setDateFormat("dd.MM.yyyy HH:mm:ss");
+			bankInfoWindowFormLayout.addComponent(bankPaymentDateDateField);
+
+			TextField bankPaymentSumTextField = new TextField("Payment Sum");
+			bankInfoWindowFormLayout.addComponent(bankPaymentSumTextField);
+
+//			ComboBox bankContractNumberComboBox = new ComboBox("Contract Number");
+//
+//			List<Flat> flatBuyerList = new ArrayList<>();
+//
+//			try {
+//				flatBuyerList = flatService.getFlatsFromFlatBuyerTable();
+//				Iterator<Flat> iter = flatBuyerList.iterator();
+//				while (iter.hasNext()) {
+//					Flat flatFromList = iter.next();
+//
+//					DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//
+//					LocalDate localDate = LocalDate.parse(dateFormat.format(flatFromList.getFlatContractDate()))
+//							.plusDays(1);
+//
+//					String[] contractDate = localDate.toString().split("-");
+//
+//					String contractDateNew = contractDate[2] + "." + contractDate[1] + "." + contractDate[0];
+//
+//					bankContractNumberComboBox.addItem(flatFromList.getFlatContractNumber() + " from "
+//
+//							+ contractDateNew);
+//
+//				}
+//			} catch (SQLException e3) {
+//				// TODO Auto-generated catch block
+//				e3.printStackTrace();
+//			}
+//
+//			bankInfoWindowFormLayout.addComponent(bankContractNumberComboBox);
+
+			bankInfoWindowFormLayout.addComponent(bankInfoWindowContractComboBox());
+			
+			
+			
+			TextField bankPayerTextField = new TextField("Payer Info");
+
+//			bankContractNumberComboBox.addValueChangeListener(select -> {
+
+			bankInfoWindowContractComboBox().addValueChangeListener(select -> {
+			
+				Flat paymentFlat = new Flat();
+
+				String contractText = bankInfoWindowContractComboBox().getValue().toString();
+
+				String[] contractNumberDate = contractText.split(" from ");
+
+				String contractDateReplace = contractNumberDate[1].replace(".", "-");
+
+				String[] contractDate = contractDateReplace.split("-");
+
+				String contractDateNew = contractDate[2] + "." + contractDate[1] + "." + contractDate[0];
+
+				try {
+					paymentFlat = flatService.getFlatByFlatIdFromFlatBuyerTable(
+							flatService.getFlatFromFlatBuyerTableByContract(contractNumberDate[0], contractDateNew)
+									.getIdFlatTable());
+
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				bankPayerTextField.setValue(paymentFlat.getFlatBuyerFirstname() + " "
+						+ paymentFlat.getFlatBuyerLastname() + " " + paymentFlat.getFlatBuyerSurname());
+
+			});
+
+			bankPayerTextField.setEnabled(false);
+
+			bankInfoWindowFormLayout.addComponent(bankPayerTextField);
+
+			bankInfoWindowVerticalLayout.addComponent(bankInfoWindowFormLayout);
+
+			HorizontalLayout bankInfoWindowHorizontalLayout = new HorizontalLayout();
+			bankInfoWindowHorizontalLayout.setSizeFull();
+			bankInfoWindowHorizontalLayout.setMargin(true);
+			bankInfoWindowHorizontalLayout.setSpacing(true);
+			bankInfoWindowVerticalLayout.addComponent(bankInfoWindowHorizontalLayout);
+
+			Button bankInfoWindowPaymentButton = new Button("Add Payment");
+			bankInfoWindowPaymentButton.setSizeFull();
+			bankInfoWindowPaymentButton.setEnabled(false);
+
+			bankPaymentSumTextField.addValueChangeListener(event -> {
+
+				if (bankPaymentSumTextField.getValue().equals("")) {
+					bankInfoWindowPaymentButton.setEnabled(false);
+				} else {
+
+					bankPayerTextField.addValueChangeListener(event1 -> {
+
+						if (bankPayerTextField.getValue().equals("")) {
+							bankInfoWindowPaymentButton.setEnabled(false);
+						} else {
+							bankInfoWindowPaymentButton.setEnabled(true);
+						}
+
+					});
+				}
+
+			});
+
+			bankInfoWindowPaymentButton.addClickListener(click -> {
+
+				Flat paymentFlat = new Flat();
+
+				String contractText = bankInfoWindowContractComboBox().getValue().toString();
+
+				String[] contractNumberDate = contractText.split(" from ");
+
+				String contractDateReplace = contractNumberDate[1].replace(".", "-");
+
+				String[] contractDate = contractDateReplace.split("-");
+
+				String contractDateNew = contractDate[2] + "." + contractDate[1] + "." + contractDate[0];
+
+				try {
+					paymentFlat.setIdFlatTable(
+							flatService.getFlatFromFlatBuyerTableByContract(contractNumberDate[0], contractDateNew)
+									.getIdFlatTable());
+					paymentFlat.setBankTablePaymentDate(bankPaymentDateDateField.getValue());
+					paymentFlat.setBankTablePaymentSum(Double.parseDouble(bankPaymentSumTextField.getValue()));
+					flatService.createBankPayment(paymentFlat);
+
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				bankInfoWindowPaymentButton.setEnabled(false);
+
+			});
+
+			bankInfoWindowHorizontalLayout.addComponent(bankInfoWindowPaymentButton);
+
+			Button bankInfoWindowCancelButton = new Button("Cancel");
+			bankInfoWindowCancelButton.setSizeFull();
+
+			bankInfoWindowCancelButton.addClickListener(event -> {
+				bankInfoWindow.close();
+			});
+
+			bankInfoWindowHorizontalLayout.addComponent(bankInfoWindowCancelButton);
+
+			bankInfoWindow.center();
+
+			UI.getCurrent().addWindow(bankInfoWindow);
+
+		});
+
+		return addBankInfoButton;
+	}
 
 	public Button cancelButton() {
 
@@ -790,6 +1686,7 @@ public class AccountingView extends VerticalLayout implements View {
 		return cancelButton;
 	}
 
+	//////////////////////////////////////
 	public Button reportButton() {
 
 		Button reportButton = new Button("Report !!!");
