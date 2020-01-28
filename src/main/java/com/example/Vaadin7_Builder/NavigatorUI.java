@@ -56,9 +56,9 @@ public class NavigatorUI extends UI {
 
 		try {
 			navigator.addView(BUILDINGINFO, new BuildingInfoView());
-		} catch (SQLException e2) {
+		} catch (SQLException e3) {
 			// TODO Auto-generated catch block
-			e2.printStackTrace();
+			e3.printStackTrace();
 		}
 
 		try {

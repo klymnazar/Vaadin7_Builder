@@ -20,15 +20,13 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Grid.SingleSelectionModel;
 
-public class AddExpensesButton extends VerticalLayout {
+public class AddExpensesButton {
 
 	FlatService flatService = new FlatService();
 
 	private String generalExpenses = "General";
 	private String bcExpenses = "B.C.";
 	private String cmExpenses = "C.M.";
-
-	
 
 	public Grid infoGrid(int idFlatTableIntFromSelectedRow) {
 
@@ -166,15 +164,13 @@ public class AddExpensesButton extends VerticalLayout {
 				int availableSum = Integer.parseInt(infoGrid(idFlatTableIntFromSelectedRow).getContainerDataSource()
 						.getItem(1).getItemProperty("availableSum").getValue().toString());
 
-				
-				if (expensesSumTextField.getValue().equals("") || expensesCategoryComboBox.isEmpty() || expensesValueComboBox.isEmpty()) {
-					
+				if (expensesSumTextField.getValue().equals("") || expensesCategoryComboBox.isEmpty()
+						|| expensesValueComboBox.isEmpty()) {
+
 					Notification.show("Please, fill in all the fields!", Notification.Type.ERROR_MESSAGE);
-					
-				}
-				else 
-				
-				
+
+				} else
+
 				if (Integer.parseInt(expensesSumTextField.getValue()) > availableSum) {
 
 					Notification.show("Please, change expenses sum. You imputed " + expensesSumTextField.getValue()

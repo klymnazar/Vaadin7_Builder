@@ -5,13 +5,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class SqlConnection {
-	
+
 	public Connection sqlConnection() throws SQLException {
-	
+
 		Connection conn = null;
-		
+
 		try {
-//			String url = "jdbc:mysql://localhost/builderdb?serverTimezone=Europe/Moscow&useSSL=false";
 			String url = "jdbc:mysql://localhost/builderdb?serverTimezone=Europe/Kiev&useSSL=false";
 			String username = "root";
 			String password = "root";
@@ -19,14 +18,12 @@ public class SqlConnection {
 			try {
 				conn = DriverManager.getConnection(url, username, password);
 				System.out.println("Connection to builberdb succesfull!");
-			}
-			catch (SQLException ex) {
+			} catch (SQLException ex) {
 				System.out.println("Connection to builberdb failed...");
 			}
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			System.out.println("Connection failed...");
-			
+
 			System.out.println(ex);
 		}
 		return conn;

@@ -22,134 +22,119 @@ import com.vaadin.ui.VerticalLayout;
 
 @Theme("mytheme")
 public class MainView extends VerticalLayout implements View {
-	
-		public MainView() {
-			setSpacing(true);
+
+	public MainView() {
+		setSpacing(true);
 //			setSizeFull();
 //			setWidth("100%");
-			setHeight("100%");
-			
-			HorizontalLayout horizontalLayout = new HorizontalLayout();
-			horizontalLayout.setWidth("100%");
-			horizontalLayout.setSpacing(true);
-			addComponent(horizontalLayout);
-			setComponentAlignment(horizontalLayout, Alignment.TOP_RIGHT);
-			
-			Panel logoPanel = new Panel("Logo Panel");
-			horizontalLayout.addComponent(logoPanel);
-				
-			HorizontalLayout logoPanelHorizontalLayout = new HorizontalLayout();
-			logoPanelHorizontalLayout.setSizeFull();
-			
-			logoPanel.setContent(logoPanelHorizontalLayout);
-			horizontalLayout.setExpandRatio(logoPanel, 1.0f);
-						
-			Image logoImage = new Image(null, new ThemeResource("image/logo-design-30.jpg"));
-			logoImage.addClickListener( e -> {
+		setHeight("100%");
+
+		HorizontalLayout horizontalLayout = new HorizontalLayout();
+		horizontalLayout.setWidth("100%");
+		horizontalLayout.setSpacing(true);
+		addComponent(horizontalLayout);
+		setComponentAlignment(horizontalLayout, Alignment.TOP_RIGHT);
+
+		Panel logoPanel = new Panel("Logo Panel");
+		horizontalLayout.addComponent(logoPanel);
+
+		HorizontalLayout logoPanelHorizontalLayout = new HorizontalLayout();
+		logoPanelHorizontalLayout.setSizeFull();
+
+		logoPanel.setContent(logoPanelHorizontalLayout);
+		horizontalLayout.setExpandRatio(logoPanel, 1.0f);
+
+		Image logoImage = new Image(null, new ThemeResource("image/logo-design-30.jpg"));
+		logoImage.addClickListener(e -> {
 ////			    		vertical.addComponent(new Label("Thanks logo, works!"));
 ////						vertical.addComponents(panelMain);
-			});
-			logoPanelHorizontalLayout.addComponent(logoImage);
-			
-			Image usersImage = new Image(null, new ThemeResource("image/users25.png"));
-			usersImage.addClickListener( e -> {
+		});
+		logoPanelHorizontalLayout.addComponent(logoImage);
+
+		Image usersImage = new Image(null, new ThemeResource("image/users25.png"));
+		usersImage.addClickListener(e -> {
 //						vertical.addComponent(new Label("Thanks users, works!"));
-			});
-			logoPanelHorizontalLayout.addComponent(usersImage);
-			logoPanelHorizontalLayout.setComponentAlignment(usersImage, Alignment.MIDDLE_RIGHT);
-			
-			Button logoutButton = new Button("Logout");
-			logoutButton.addClickListener( e -> {
-				UI.getCurrent().getNavigator().navigateTo("");
-			});
-			logoutButton.setSizeUndefined();
-			horizontalLayout.addComponent(logoutButton);
-			
-			
-			Button settingsButton = new Button("Settings");
-			settingsButton.addClickListener( e -> {
-				UI.getCurrent().getNavigator().navigateTo("settings");
-			});
-			settingsButton.setSizeUndefined();
-			horizontalLayout.addComponent(settingsButton);
-			
-			
-			Panel mainPanel = new Panel("Main Panel");
-			mainPanel.setSizeFull();
-			addComponent(mainPanel);
-			setExpandRatio(mainPanel, 1.0f);
+		});
+		logoPanelHorizontalLayout.addComponent(usersImage);
+		logoPanelHorizontalLayout.setComponentAlignment(usersImage, Alignment.MIDDLE_RIGHT);
 
-			GridLayout mainPanelGridLayout = new GridLayout(2, 2);
-			mainPanelGridLayout.setSizeFull();
-			mainPanelGridLayout.setSpacing(true);
-			mainPanelGridLayout.setMargin(true);
-			mainPanel.setContent(mainPanelGridLayout);
-			
-			Button userManagementButton = new Button("User Management");
-			userManagementButton.setStyleName("huge");
-			userManagementButton.setSizeFull();
-			userManagementButton.addClickListener( e -> {
-				UI.getCurrent().getNavigator().navigateTo("userManagement");
-				
-				
-//	    		panelMain.removeFromParent(panelMain);
-//	    		vertical.addComponent(new ser());
-				
-				
-//	    		vertical.addComponent(new Label("Thanks logo, works!"));
-			});
-			mainPanelGridLayout.addComponent(userManagementButton, 0, 0, 0, 0);
-			mainPanelGridLayout.setComponentAlignment(userManagementButton, Alignment.MIDDLE_CENTER);
+		Button logoutButton = new Button("Logout");
+		logoutButton.addClickListener(e -> {
+			UI.getCurrent().getNavigator().navigateTo("");
+		});
+		logoutButton.setSizeUndefined();
+		horizontalLayout.addComponent(logoutButton);
 
-			Button flatInfoButton = new Button("Flat Info");
-			flatInfoButton.setStyleName("huge");
-			flatInfoButton.setSizeFull();
-			
-			flatInfoButton.addClickListener( e -> {
-				UI.getCurrent().getNavigator().navigateTo("flatInfo");
+		Button settingsButton = new Button("Settings");
+		settingsButton.addClickListener(e -> {
+			UI.getCurrent().getNavigator().navigateTo("settings");
+		});
+		settingsButton.setSizeUndefined();
+		horizontalLayout.addComponent(settingsButton);
 
-			});
-			
-			
-			mainPanelGridLayout.addComponent(flatInfoButton, 1, 0, 1, 0);
-			mainPanelGridLayout.setComponentAlignment(flatInfoButton, Alignment.MIDDLE_CENTER);
-			
-			Button buildingInfoButton = new Button("Building Info");
-			buildingInfoButton.setStyleName("huge");
-			buildingInfoButton.setSizeFull();
-			
-			buildingInfoButton.addClickListener( e -> {
-				UI.getCurrent().getNavigator().navigateTo("buildingInfo");
+		Panel mainPanel = new Panel("Main Panel");
+		mainPanel.setSizeFull();
+		addComponent(mainPanel);
+		setExpandRatio(mainPanel, 1.0f);
 
-			});
-			
-			mainPanelGridLayout.addComponent(buildingInfoButton, 0, 1, 0, 1);
-			mainPanelGridLayout.setComponentAlignment(buildingInfoButton, Alignment.MIDDLE_CENTER);
-			
-			
-			
-			Button accountingButton = new Button("Accounting");
-			accountingButton.setStyleName("huge");
-			accountingButton.setSizeFull();
-			
-			accountingButton.addClickListener(e -> {
+		GridLayout mainPanelGridLayout = new GridLayout(2, 2);
+		mainPanelGridLayout.setSizeFull();
+		mainPanelGridLayout.setSpacing(true);
+		mainPanelGridLayout.setMargin(true);
+		mainPanel.setContent(mainPanelGridLayout);
+
+		Button userManagementButton = new Button("User Management");
+		userManagementButton.setStyleName("huge");
+		userManagementButton.setSizeFull();
+		userManagementButton.addClickListener(e -> {
+			UI.getCurrent().getNavigator().navigateTo("userManagement");
+
+		});
+		mainPanelGridLayout.addComponent(userManagementButton, 0, 0, 0, 0);
+		mainPanelGridLayout.setComponentAlignment(userManagementButton, Alignment.MIDDLE_CENTER);
+
+		Button flatInfoButton = new Button("Flat Info");
+		flatInfoButton.setStyleName("huge");
+		flatInfoButton.setSizeFull();
+
+		flatInfoButton.addClickListener(e -> {
+			UI.getCurrent().getNavigator().navigateTo("flatInfo");
+
+		});
+
+		mainPanelGridLayout.addComponent(flatInfoButton, 1, 0, 1, 0);
+		mainPanelGridLayout.setComponentAlignment(flatInfoButton, Alignment.MIDDLE_CENTER);
+
+		Button buildingInfoButton = new Button("Building Info");
+		buildingInfoButton.setStyleName("huge");
+		buildingInfoButton.setSizeFull();
+
+		buildingInfoButton.addClickListener(e -> {
+			UI.getCurrent().getNavigator().navigateTo("buildingInfo");
+
+		});
+
+		mainPanelGridLayout.addComponent(buildingInfoButton, 0, 1, 0, 1);
+		mainPanelGridLayout.setComponentAlignment(buildingInfoButton, Alignment.MIDDLE_CENTER);
+
+		Button accountingButton = new Button("Accounting");
+		accountingButton.setStyleName("huge");
+		accountingButton.setSizeFull();
+
+		accountingButton.addClickListener(e -> {
 			UI.getCurrent().getNavigator().navigateTo("accounting");
-				
-			});
-			
-			mainPanelGridLayout.addComponent(accountingButton, 1, 1, 1, 1);
-			mainPanelGridLayout.setComponentAlignment(accountingButton, Alignment.MIDDLE_CENTER);
-			
 
+		});
 
-
+		mainPanelGridLayout.addComponent(accountingButton, 1, 1, 1, 1);
+		mainPanelGridLayout.setComponentAlignment(accountingButton, Alignment.MIDDLE_CENTER);
 
 	}
-	
+
 	@Override
 	public void enter(ViewChangeEvent event) {
 		// TODO Auto-generated method stub
 
 	}
 
-} 
+}

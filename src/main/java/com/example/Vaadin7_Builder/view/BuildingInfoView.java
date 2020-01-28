@@ -2,37 +2,38 @@ package com.example.Vaadin7_Builder.view;
 
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import com.example.Vaadin7_Builder.model.Flat;
 import com.example.Vaadin7_Builder.service.FlatService;
+import com.example.Vaadin7_Builder.view.BuildingInfoViewServises.AddFlatButton;
+import com.example.Vaadin7_Builder.view.BuildingInfoViewServises.EditFlatButton;
+import com.example.Vaadin7_Builder.view.BuildingInfoViewServises.UpdateGrid;
 import com.vaadin.data.validator.DoubleValidator;
 import com.vaadin.data.validator.IntegerValidator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Grid;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.Grid.FooterRow;
 import com.vaadin.ui.Grid.SingleSelectionModel;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Layout;
-import com.vaadin.ui.TextField;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 
 public class BuildingInfoView extends VerticalLayout implements View {
 
+	AddFlatButton addFlatButton = new AddFlatButton();
+
+	EditFlatButton editFlatButton = new EditFlatButton();
+
+	UpdateGrid updateGrid = new UpdateGrid();
+
 	private FlatService flatService = new FlatService();
-
-	private Grid flatGrid = new Grid();
-
-	private GridLayout buildingInfoGridLayout = new GridLayout(1, 15);
 
 	private String flatSetFree = "";
 
@@ -41,22 +42,57 @@ public class BuildingInfoView extends VerticalLayout implements View {
 	public BuildingInfoView() throws SQLException {
 
 		setSizeFull();
-		buildingInfoGridLayout.setSizeFull();
-		buildingInfoGridLayout.setMargin(true);
-		buildingInfoGridLayout.setSpacing(true);
-		addComponent(buildingInfoGridLayout);
+		setMargin(true);
+		setSpacing(true);
 
-		flatGrid = flatGridFlatInfoView(flatService.getFlatsFromFlatTable());
+		HorizontalLayout buildingInfoHorizontalLayout = new HorizontalLayout();
+		buildingInfoHorizontalLayout.setSizeFull();
+		buildingInfoHorizontalLayout.setSpacing(true);
+		addComponent(buildingInfoHorizontalLayout);
+		setExpandRatio(buildingInfoHorizontalLayout, 1.0f);
 
-		buildingInfoGridLayout.addComponent(flatGrid, 0, 0, 0, 13);
+		Panel buildingInfoGridPanel = new Panel("Building Info");
+		buildingInfoGridPanel.setSizeFull();
+		buildingInfoHorizontalLayout.addComponent(buildingInfoGridPanel);
+		buildingInfoHorizontalLayout.setExpandRatio(buildingInfoGridPanel, 1.0f);
 
-		flatButtonHorizontalLayout();
+		Grid flatGrid = new Grid();
+		FooterRow flatGridFooterRow = flatGrid.prependFooterRow();
+
+		List<Flat> flatList = new ArrayList<>();
+		try {
+			flatList = flatService.getFlatsFromOrderedFlatTable();
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		flatGrid = flatGridFlatInfoView(flatList, flatGridFooterRow);
+
+		buildingInfoGridPanel.setContent(flatGrid);
+
+		buildingInfoHorizontalLayout.addComponent(corpsPanel(flatGrid, flatGridFooterRow));
+
+		HorizontalLayout buildingInfobuttonHorizontalLayout = new HorizontalLayout();
+		buildingInfobuttonHorizontalLayout.setWidth("100%");
+		buildingInfobuttonHorizontalLayout.setHeight("50px");
+		buildingInfobuttonHorizontalLayout.setSpacing(true);
+		addComponent(buildingInfobuttonHorizontalLayout);
+
+		buildingInfobuttonHorizontalLayout.addComponent(addFlatButton.addFlatButton(flatGrid, flatGridFooterRow));
+
+		buildingInfobuttonHorizontalLayout.addComponent(editFlatButton.editFlatButton(flatGrid, flatGridFooterRow));
+
+		buildingInfobuttonHorizontalLayout.addComponent(deleteFlatButton(flatGrid, flatGridFooterRow));
+
+		buildingInfobuttonHorizontalLayout.addComponent(cancelButton());
 
 	}
 
-	public Grid flatGridFlatInfoView(List<Flat> flatList) throws SQLException {
+	public Grid flatGridFlatInfoView(List<Flat> flatList, FooterRow flatGridFooterRow) throws SQLException {
 
 		Grid flatGrid = new Grid();
+		flatGridFooterRow = flatGrid.prependFooterRow();
 
 		flatGrid.setSizeFull();
 
@@ -71,285 +107,82 @@ public class BuildingInfoView extends VerticalLayout implements View {
 
 		flatGrid.getColumn("idFlatTable").setHidden(true);
 
-		double flatArea = 0;
-		int number = 1;
-
-		Iterator<Flat> itr = flatList.iterator();
-		while (itr.hasNext()) {
-			Flat flatFromList = itr.next();
-
-			flatArea = flatArea + flatFromList.getFlatArea();
-
-			flatGrid.addRow(flatFromList.getIdFlatTable(), number, flatFromList.getBuildingCorps(),
-					flatFromList.getFlatRooms(), flatFromList.getFlatFloor(), flatFromList.getFlatNumber(),
-					flatFromList.getFlatArea(), flatFromList.getFlatSet());
-
-			number++;
-		}
-
-		FooterRow flatGridFooterRow = flatGrid.prependFooterRow();
-		flatGridFooterRow.getCell("flatArea")
-				.setText("Total: " + decimalFormat.format(flatArea).replace(",", ".") + " m2");
+		updateGrid.updateFlatGrid(flatList, flatGrid, flatGridFooterRow);
 
 		return flatGrid;
 
 	}
 
-	public Layout flatButtonHorizontalLayout() {
+	public Panel corpsPanel(Grid flatGrid, FooterRow flatGridFooterRow) {
 
-		HorizontalLayout buttonHorizontalLayout = new HorizontalLayout();
-		buttonHorizontalLayout.setWidth("100%");
-		buttonHorizontalLayout.setHeight("50px");
-		buttonHorizontalLayout.setSpacing(true);
+		Panel corpsPanel = new Panel("Corps Info");
+		corpsPanel.setHeight("100%");
+		corpsPanel.setWidth("200px");
 
-		buttonHorizontalLayout.addComponent(addFlatButton());
+		VerticalLayout corpsPanelVerticalLayout = new VerticalLayout();
+		corpsPanelVerticalLayout.setMargin(true);
+		corpsPanelVerticalLayout.setSpacing(true);
+		corpsPanelVerticalLayout.setSizeFull();
 
-		buttonHorizontalLayout.addComponent(editFlatButton());
+		corpsPanel.setContent(corpsPanelVerticalLayout);
 
-		buttonHorizontalLayout.addComponent(deleteFlatButton());
+		List<Flat> corpsList = new ArrayList<>();
 
-		buttonHorizontalLayout.addComponent(cancelButton());
+		try {
 
-		buildingInfoGridLayout.addComponent(buttonHorizontalLayout, 0, 14, 0, 14);
-		buildingInfoGridLayout.setComponentAlignment(buttonHorizontalLayout, Alignment.MIDDLE_CENTER);
+			corpsList = flatService.getCorpsFromSettingsTable();
 
-		return buttonHorizontalLayout;
-	}
+			Iterator<Flat> itr = corpsList.iterator();
+			while (itr.hasNext()) {
+				Flat flatFromList = itr.next();
 
-	public Button addFlatButton() {
+				String corps = flatFromList.getBuildingCorps();
 
-		Button addFlatButton = new Button("Add Flat");
+				CheckBox corpsInfoCheckBox = new CheckBox(corps + " Corps Info");
+				corpsPanelVerticalLayout.addComponent(corpsInfoCheckBox);
 
-		addFlatButton.addClickListener(e -> {
+				corpsInfoCheckBox.addValueChangeListener(event -> {
+					corpsInfoCheckBoxChangeListener(corps, corpsInfoCheckBox, flatGrid, flatGridFooterRow);
+				});
 
-			Window addFlatWindow = new Window("Add Flat");
-			VerticalLayout addFlatWindowVerticalLayout = new VerticalLayout();
-			addFlatWindowVerticalLayout.setMargin(true);
-			addFlatWindowVerticalLayout.setSpacing(true);
-
-			addFlatWindow.setContent(addFlatWindowVerticalLayout);
-
-			FormLayout addFlatFormLayout = new FormLayout();
-			addFlatFormLayout.setMargin(true);
-			addFlatFormLayout.setSpacing(true);
-			addFlatWindowVerticalLayout.addComponent(addFlatFormLayout);
-
-			ComboBox buildingCorpsComboBox = new ComboBox("Building Corps");
-			buildingCorpsComboBox.addItems("1/А", "2/Б", "3/В", "4/Г", "5/Д", "6/Е", "7/Є", "8/Ж");
-			addFlatFormLayout.addComponent(buildingCorpsComboBox);
-
-			ComboBox flatRoomsComboBox = new ComboBox("Flat Rooms");
-			flatRoomsComboBox.addItems(1, 2, 3, 4, 5);
-			addFlatFormLayout.addComponent(flatRoomsComboBox);
-
-			ComboBox flatFloorComboBox = new ComboBox("Flat Floor");
-			flatFloorComboBox.addItems(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-			addFlatFormLayout.addComponent(flatFloorComboBox);
-
-			TextField flatNumberTextField = new TextField("Flat Number");
-			addFlatFormLayout.addComponent(flatNumberTextField);
-
-			TextField flatAreaTextField = new TextField("Flat Area");
-			addFlatFormLayout.addComponent(flatAreaTextField);
-
-			HorizontalLayout windowButtonHorizontalLayout = new HorizontalLayout();
-			windowButtonHorizontalLayout.setSizeFull();
-			windowButtonHorizontalLayout.setSpacing(true);
-			addFlatWindowVerticalLayout.addComponent(windowButtonHorizontalLayout);
-
-			Button addWindowButton = new Button("Add");
-			addWindowButton.addClickListener(c -> {
-
-				Flat flat = new Flat();
-
-				flat.setBuildingCorps(buildingCorpsComboBox.getValue().toString());
-				flat.setFlatArea(Double.parseDouble(flatAreaTextField.getValue()));
-				flat.setFlatFloor(Integer.parseInt(flatFloorComboBox.getValue().toString()));
-				flat.setFlatNumber(Integer.parseInt(flatNumberTextField.getValue()));
-				flat.setFlatRooms(Integer.parseInt(flatRoomsComboBox.getValue().toString()));
-
-				flatAreaTextField.addValidator(new DoubleValidator("Flat area must be double"));
-				flatNumberTextField.addValidator(new IntegerValidator("Flat number must be integer"));
-
-				if (flatAreaTextField.isValid() && flatNumberTextField.isValid()) {
-					addFlatWindow.close();
-				}
-
-				try {
-					flatService.createFlat(flat);
-					updateBuildingInfoPage();
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-
-			});
-			addWindowButton.setSizeFull();
-			windowButtonHorizontalLayout.addComponent(addWindowButton);
-
-			Button cancelWindowButton = new Button("Cancel");
-			cancelWindowButton.addClickListener(c -> {
-				addFlatWindow.close();
-			});
-			cancelWindowButton.setSizeFull();
-			windowButtonHorizontalLayout.addComponent(cancelWindowButton);
-
-			addFlatWindow.center();
-
-			UI.getCurrent().addWindow(addFlatWindow);
-
-		});
-
-		addFlatButton.setSizeFull();
-
-		return addFlatButton;
-	}
-
-	public Button editFlatButton() {
-
-		Button editFlatButton = new Button("Edit Flat");
-		editFlatButton.setSizeFull();
-		editFlatButton.setEnabled(false);
-
-		flatGrid.addSelectionListener(SelectionEvent -> {
-
-			Object selected = ((SingleSelectionModel) flatGrid.getSelectionModel()).getSelectedRow();
-			String idFlatTableFromSelectedRow = flatGrid.getContainerDataSource().getItem(selected)
-					.getItemProperty("idFlatTable").getValue().toString();
-			try {
-				String flatSetFromFlatGrid = flatService
-						.getFlatByFlatIdFromFlatTable(Integer.parseInt(idFlatTableFromSelectedRow)).getFlatSet();
-
-				if (flatSetFromFlatGrid.equals(flatSetFree)) {
-					editFlatButton.setEnabled(true);
-
-				} else {
-					editFlatButton.setEnabled(false);
-				}
-
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
 			}
+		} catch (NumberFormatException | SQLException e4) {
+			// TODO Auto-generated catch block
+			e4.printStackTrace();
+		}
 
-		});
+		return corpsPanel;
+	}
 
-		editFlatButton.addClickListener(e -> {
+	private void corpsInfoCheckBoxChangeListener(String corps, CheckBox corpsInfoCheckBox, Grid flatGrid,
+			FooterRow flatGridFooterRow) {
+		if (corpsInfoCheckBox.isEmpty()) {
 
-			Object selected = ((SingleSelectionModel) flatGrid.getSelectionModel()).getSelectedRow();
-			String idFlatTableFromSelectedRow = flatGrid.getContainerDataSource().getItem(selected)
-					.getItemProperty("idFlatTable").getValue().toString();
-
-			Flat selectedFlat = new Flat();
+			List<Flat> flatList = new ArrayList<>();
 			try {
-				selectedFlat = flatService
-						.getFlatByFlatIdFromFlatTableAndFlatBuyerDB(Integer.parseInt(idFlatTableFromSelectedRow));
-			} catch (NumberFormatException | SQLException e1) {
+				flatList = flatService.getFlatsFromOrderedFlatTable();
+			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 
-			Window editFlatWindow = new Window("Edit Flat");
-			VerticalLayout editFlatWindowVerticalLayout = new VerticalLayout();
-			editFlatWindowVerticalLayout.setMargin(true);
-			editFlatWindowVerticalLayout.setSpacing(true);
+			updateGrid.updateFlatGrid(flatList, flatGrid, flatGridFooterRow);
+		} else {
 
-			editFlatWindow.setContent(editFlatWindowVerticalLayout);
+			List<Flat> flatList = new ArrayList<>();
+			try {
+				flatList = flatService.getFlatsByCorpsFromFlatTable(corps);
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 
-			FormLayout editFlatFormLayout = new FormLayout();
-			editFlatFormLayout.setMargin(true);
-			editFlatFormLayout.setSpacing(true);
-			editFlatWindowVerticalLayout.addComponent(editFlatFormLayout);
+			updateGrid.updateFlatGrid(flatList, flatGrid, flatGridFooterRow);
 
-			ComboBox buildingCorpsComboBox = new ComboBox("Building Corps");
-			buildingCorpsComboBox.addItems("1/А", "2/Б", "3/В", "4/Г", "5/Д", "6/Е", "7/Є", "8/Ж");
-			buildingCorpsComboBox.setValue(selectedFlat.getBuildingCorps());
-			editFlatFormLayout.addComponent(buildingCorpsComboBox);
-
-			ComboBox flatRoomsComboBox = new ComboBox("Flat Rooms");
-			flatRoomsComboBox.addItems(1, 2, 3, 4, 5);
-			flatRoomsComboBox.setValue(selectedFlat.getFlatRooms());
-			editFlatFormLayout.addComponent(flatRoomsComboBox);
-
-			ComboBox flatFloorComboBox = new ComboBox("Flat Floor");
-			flatFloorComboBox.addItems(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-			flatFloorComboBox.setValue(selectedFlat.getFlatFloor());
-			editFlatFormLayout.addComponent(flatFloorComboBox);
-
-			TextField flatNumberTextField = new TextField("Flat Number");
-			flatNumberTextField.setValue("" + selectedFlat.getFlatNumber());
-			editFlatFormLayout.addComponent(flatNumberTextField);
-
-			TextField flatAreaTextField = new TextField("Flat Area");
-			flatAreaTextField.setValue("" + selectedFlat.getFlatArea());
-			editFlatFormLayout.addComponent(flatAreaTextField);
-
-			HorizontalLayout editFlatWindowButtonHorizontalLayout = new HorizontalLayout();
-			editFlatWindowButtonHorizontalLayout.setSizeFull();
-			editFlatWindowButtonHorizontalLayout.setSpacing(true);
-			editFlatWindowVerticalLayout.addComponent(editFlatWindowButtonHorizontalLayout);
-
-			Button windowEditFlatButton = new Button("Edit Flat");
-			windowEditFlatButton.setSizeFull();
-			windowEditFlatButton.addClickListener(c -> {
-
-				Flat updateflat = new Flat();
-
-				updateflat.setBuildingCorps(buildingCorpsComboBox.getValue().toString());
-				updateflat.setFlatArea(Double.parseDouble(flatAreaTextField.getValue()));
-				updateflat.setFlatFloor(Integer.parseInt(flatFloorComboBox.getValue().toString()));
-				updateflat.setFlatNumber(Integer.parseInt(flatNumberTextField.getValue()));
-				updateflat.setFlatRooms(Integer.parseInt(flatRoomsComboBox.getValue().toString()));
-
-				flatAreaTextField.addValidator(new DoubleValidator("Flat area must be double"));
-				flatNumberTextField.addValidator(new IntegerValidator("Flat number must be integer"));
-
-				if (flatAreaTextField.isValid() && flatNumberTextField.isValid()) {
-
-					editFlatWindow.close();
-				}
-
-				try {
-					flatService.updateFlatTableByFlatId(Integer.parseInt(idFlatTableFromSelectedRow), updateflat);
-					updateBuildingInfoPage();
-					editFlatWindow.close();
-					editFlatButton.setEnabled(false);
-
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-
-			});
-
-			editFlatWindowButtonHorizontalLayout.addComponent(windowEditFlatButton);
-
-			Button windowCancelButton = new Button("Cancel");
-			windowCancelButton.setSizeFull();
-			windowCancelButton.addClickListener(c -> {
-				editFlatWindow.close();
-			});
-			editFlatWindowButtonHorizontalLayout.addComponent(windowCancelButton);
-
-			editFlatWindow.center();
-
-			UI.getCurrent().addWindow(editFlatWindow);
-
-		});
-
-		return editFlatButton;
+		}
 	}
 
-	public void updateBuildingInfoPage() throws SQLException {
-
-		buildingInfoGridLayout.removeComponent(flatGrid);
-		buildingInfoGridLayout.removeComponent(0, 14);
-		flatGrid = flatGridFlatInfoView(flatService.getFlatsFromFlatTable());
-		buildingInfoGridLayout.addComponent(flatGrid, 0, 0, 0, 13);
-		buildingInfoGridLayout.addComponent(flatButtonHorizontalLayout(), 0, 14, 0, 14);
-
-	}
-
-	public Button deleteFlatButton() {
+	public Button deleteFlatButton(Grid flatGrid, FooterRow flatGridFooterRow) throws SQLException {
 
 		Button deleteFlatButton = new Button("Delete Flat");
 		deleteFlatButton.setSizeFull();
@@ -383,15 +216,23 @@ public class BuildingInfoView extends VerticalLayout implements View {
 					.getItemProperty("idFlatTable").getValue().toString();
 
 			try {
-
 				flatService.deleteFlatByFlatId(Integer.parseInt(idFlatTableFromSelectedRow));
+			} catch (NumberFormatException | SQLException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
 
-				updateBuildingInfoPage();
+			deleteFlatButton.setEnabled(false);
 
-			} catch (NumberFormatException | SQLException e1) {
+			List<Flat> flatList = new ArrayList<>();
+			try {
+				flatList = flatService.getFlatsFromOrderedFlatTable();
+			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+
+			updateGrid.updateFlatGrid(flatList, flatGrid, flatGridFooterRow);
 
 		});
 

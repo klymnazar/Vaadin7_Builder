@@ -29,7 +29,7 @@ public class FlatServiceTest {
 		flat.setFlatRooms(1);
 		
 		fs.createFlat(flat);
-		flat = fs.getFlatByFlatNumber(12);
+//		flat = fs.getFlatByFlatNumber(12);
 		
 		assertEquals("A", flat.getBuildingCorps());
 		assertEquals(49.1, flat.getFlatArea());
@@ -37,7 +37,7 @@ public class FlatServiceTest {
 		assertEquals(12, flat.getFlatNumber());
 		assertEquals(1, flat.getFlatRooms());
 		
-		fs.deleteFlatByFlatNumber(12);
+//		fs.deleteFlatByFlatNumber(12);
 	
 	}
 
@@ -62,7 +62,7 @@ public class FlatServiceTest {
 		
 		assertEquals(count+1, countAfter);
 		
-		fs.deleteFlatByFlatNumber(12);
+//		fs.deleteFlatByFlatNumber(12);
 	}
 	
 	
@@ -98,7 +98,7 @@ public class FlatServiceTest {
 		assertEquals(1, flat.getFlatRooms());
 		
 	
-		fs.deleteFlatByFlatNumber(12);
+//		fs.deleteFlatByFlatNumber(12);
 
 	}
 	
