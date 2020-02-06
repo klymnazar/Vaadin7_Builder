@@ -83,7 +83,7 @@ public class FlatService {
 		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "INSERT INTO bankTable (idflatTable, bankTablePaymentDate, bankTablePaymentSum) VALUES ("
-				+ idflatTable + ", TIME('" + bankTablePaymentDate + "'), " + bankTablePaymentSum + ")";
+				+ idflatTable + ", TIMESTAMP('" + bankTablePaymentDate + "'), " + bankTablePaymentSum + ")";
 
 //		System.out.println(sql);
 		Statement statement = conn.createStatement();
@@ -168,6 +168,42 @@ public class FlatService {
 
 	}
 
+	
+	public void updateExpensesTableById(int flatId, Flat flat) throws SQLException {
+
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+//		int idflatTable = flat.getIdFlatTable();
+
+		String expensesTableDate = dateFormat.format(flat.getExpensesTableDate());
+
+		int expensesTableSum = flat.getExpensesTableSum();
+
+		String expensesTableCategory = flat.getExpensesTableCategory();
+		String expensesTableValue = flat.getExpensesTableValue();
+		String expensesTableValueTA = flat.getExpensesTableValueTA();
+
+		SqlConnection sqlConnection = new SqlConnection();
+		Connection conn = sqlConnection.sqlConnection();
+
+//		String sql = "INSERT INTO expensesTable (idflatTable, expensesTableDate, expensesTableSum, expensesTableCategory, expensesTableValue, expensesTableValue) VALUES ("
+//				+ idflatTable + ", TIMESTAMP('" + expensesTableDate + "'), " + expensesTableSum + ", '"
+//				+ expensesTableCategory + "', '" + expensesTableValue + "', '" + expensesTableValueTA + "')";
+
+		String sql = "UPDATE expensesTable SET expensesTableDate = TIMESTAMP('" + expensesTableDate + "'), expensesTableSum = " + expensesTableSum + ", expensesTableCategory = '" + expensesTableCategory + "', expensesTableValue = '" + expensesTableValue + "', expensesTableValueTA = '" + expensesTableValueTA + "' WHERE idexpensesTable = " + flatId;
+
+//		System.out.println(sql);
+		Statement statement = conn.createStatement();
+
+		statement.executeUpdate(sql);
+
+		conn.close();
+
+	}
+	
+	
+	
 	public void updateFlatSetByFlatIdInFlatTable(int flatId, String flatSet) throws SQLException {
 
 		SqlConnection sqlConnection = new SqlConnection();
@@ -189,7 +225,7 @@ public class FlatService {
 		SqlConnection sqlConnection = new SqlConnection();
 		Connection conn = sqlConnection.sqlConnection();
 
-		String sql = "DELETE FROM flatTable WHERE idFlatTable=" + flatId;
+		String sql = "DELETE FROM flatTable WHERE idFlatTable = " + flatId;
 
 //			System.out.println(sql);
 		Statement statement = conn.createStatement();
@@ -197,6 +233,24 @@ public class FlatService {
 
 		conn.close();
 	}
+	
+	
+	public void deleteFlatByIdFromExpensesTable(int flatId) throws SQLException {
+
+		SqlConnection sqlConnection = new SqlConnection();
+		Connection conn = sqlConnection.sqlConnection();
+
+		String sql = "DELETE FROM expensesTable WHERE idExpensesTable = " + flatId;
+ 
+//			System.out.println(sql);
+		Statement statement = conn.createStatement();
+		statement.executeUpdate(sql);
+
+		conn.close();
+	}
+	
+	
+	
 
 	public int countFlats() throws SQLException {
 
@@ -511,9 +565,6 @@ public class FlatService {
 
 		String sql = "SELECT * FROM flatBuyerTable WHERE flatContractNumber = '" + contractNumber + "'";
 		
-		
-//		String sql = "SELECT * FROM flatBuyerTable WHERE flatContractNumber = '" + contractNumber
-//				+ "' AND flatContractDate = TIMESTAMP('" + contractDate + "')";
 
 //		System.out.println(sql);
 		Statement statement = conn.createStatement();
@@ -765,6 +816,7 @@ public class FlatService {
 				flat.setExpensesTableSum(rs.getInt(4));
 				flat.setExpensesTableCategory(rs.getString(5));
 				flat.setExpensesTableValue(rs.getString(6));
+				flat.setExpensesTableValueTA(rs.getString(7));
 
 			}
 			flatList.add(flat);
@@ -831,11 +883,13 @@ public class FlatService {
 		while (rs.next()) {
 			Flat flat = new Flat();
 			for (int i = 1; i <= cnt; i++) {
+				flat.setIdExpensesTable(rs.getInt(1));
 				flat.setIdFlatTable(rs.getInt(2));
 				flat.setExpensesTableDate(rs.getTimestamp(3));
 				flat.setExpensesTableSum(rs.getInt(4));
 				flat.setExpensesTableCategory(rs.getString(5));
 				flat.setExpensesTableValue(rs.getString(6));
+				flat.setExpensesTableValueTA(rs.getString(7));
 
 			}
 			flatList.add(flat);
@@ -880,6 +934,43 @@ public class FlatService {
 
 		return flat;
 	}
+	
+	
+	public Flat getFlatByIdFromExpensesTable(int flatId) throws SQLException {
+
+		Flat flat = new Flat();
+
+		SqlConnection sqlConnection = new SqlConnection();
+		Connection conn = sqlConnection.sqlConnection();
+
+		String sql = "SELECT * FROM expensesTable WHERE idExpensesTable = " + flatId;
+
+//		System.out.println(sql);
+		Statement statement = conn.createStatement();
+		ResultSet rs = statement.executeQuery(sql);
+
+		ResultSetMetaData md = rs.getMetaData();
+		int cnt = md.getColumnCount();
+
+		while (rs.next()) {
+
+			for (int i = 1; i <= cnt; i++) {
+				flat.setIdExpensesTable(rs.getInt(1));
+				flat.setIdFlatTable(rs.getInt(2));
+				flat.setExpensesTableDate(rs.getTimestamp(3));
+				flat.setExpensesTableSum(rs.getInt(4));
+				flat.setExpensesTableCategory(rs.getString(5));
+				flat.setExpensesTableValue(rs.getString(6));
+				flat.setExpensesTableValueTA(rs.getString(7));
+
+			}
+		}
+
+		conn.close();
+
+		return flat;
+	}
+	
 
 	public Flat getFlatByFlatIdFromFlatTableShortInfo(int flatId) throws SQLException {
 
@@ -984,13 +1075,14 @@ public class FlatService {
 
 		String expensesTableCategory = flat.getExpensesTableCategory();
 		String expensesTableValue = flat.getExpensesTableValue();
+		String expensesTableValueTA = flat.getExpensesTableValueTA();
 
 		SqlConnection sqlConnection = new SqlConnection();
 		Connection conn = sqlConnection.sqlConnection();
 
-		String sql = "INSERT INTO expensesTable (idflatTable, expensesTableDate, expensesTableSum, expensesTableCategory, expensesTableValue) VALUES ("
-				+ idflatTable + ", TIME('" + expensesTableDate + "'), " + expensesTableSum + ", '"
-				+ expensesTableCategory + "', '" + expensesTableValue + "')";
+		String sql = "INSERT INTO expensesTable (idflatTable, expensesTableDate, expensesTableSum, expensesTableCategory, expensesTableValue, expensesTableValue) VALUES ("
+				+ idflatTable + ", TIMESTAMP('" + expensesTableDate + "'), " + expensesTableSum + ", '"
+				+ expensesTableCategory + "', '" + expensesTableValue + "', '" + expensesTableValueTA + "')";
 
 //		System.out.println(sql);
 		Statement statement = conn.createStatement();

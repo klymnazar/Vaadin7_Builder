@@ -6,6 +6,7 @@ import java.util.Date;
 public class Flat {
 
 	private int idFlatTable;
+	private int idExpensesTable;
 	private String flatSet;
 	private String buildingCorps;
 	private int flatFloor;
@@ -31,6 +32,7 @@ public class Flat {
 	private int expensesTableSum;
 	private String expensesTableCategory;
 	private String expensesTableValue;
+	private String expensesTableValueTA;
 
 	private Date bankTablePaymentDate;
 	private double bankTablePaymentSum;
@@ -44,6 +46,14 @@ public class Flat {
 
 	public void setIdFlatTable(int idFlatTable) {
 		this.idFlatTable = idFlatTable;
+	}
+	
+	public int getIdExpensesTable() {
+		return idExpensesTable;
+	}
+
+	public void setIdExpensesTable(int idExpensesTable) {
+		this.idExpensesTable = idExpensesTable;
 	}
 
 	public String getFlatSet() {
@@ -221,6 +231,16 @@ public class Flat {
 	public void setExpensesTableValue(String expensesTableValue) {
 		this.expensesTableValue = expensesTableValue;
 	}
+	
+	public String getExpensesTableValueTA() {
+		return expensesTableValueTA;
+	}
+
+	public void setExpensesTableValueTA(String expensesTableValueTA) {
+		this.expensesTableValueTA = expensesTableValueTA;
+	}
+	
+	
 
 	public Date getNew_date_tablecol() throws ParseException {
 

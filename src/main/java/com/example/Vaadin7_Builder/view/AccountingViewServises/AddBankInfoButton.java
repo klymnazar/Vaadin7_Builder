@@ -12,6 +12,8 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.FooterRow;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
@@ -20,6 +22,9 @@ import com.vaadin.ui.Window;
 
 public class AddBankInfoButton {
 
+	UpdateAccountingFlatGrid updateAccountingFlatGrid = new UpdateAccountingFlatGrid();
+	
+	
 	FlatService flatService = new FlatService();
 
 	private ComboBox bankContractNumberComboBox = new ComboBox("Contract Number");
@@ -49,7 +54,7 @@ public class AddBankInfoButton {
 		return bankContractNumberComboBox;
 	}
 
-	public Button addBankInfoButton() {
+	public Button addBankInfoButton(List<Flat> flatList, Grid flatGrid, FooterRow flatGridFooterRow) {
 
 		Button addBankInfoButton = new Button("Add Bank Info");
 		addBankInfoButton.setSizeFull();
@@ -93,21 +98,11 @@ public class AddBankInfoButton {
 
 				String[] contractNumberDate = contractText.split(" from ");
 
-//				String contractDateReplace = contractNumberDate[1].replace(".", "-");
-//
-//				String[] contractDate = contractDateReplace.split("-");
-//
-//				String contractDateNew = contractDate[2] + "." + contractDate[1] + "." + contractDate[0];
-
 				try {
 					
 					paymentFlat = flatService.getFlatByFlatIdFromFlatBuyerTable(
 							flatService.getFlatFromFlatBuyerTableByContract(contractNumberDate[0])
 									.getIdFlatTable());
-					
-//					paymentFlat = flatService.getFlatByFlatIdFromFlatBuyerTable(
-//							flatService.getFlatFromFlatBuyerTableByContract(contractNumberDate[0], contractDateNew)
-//									.getIdFlatTable());
 
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
@@ -162,21 +157,12 @@ public class AddBankInfoButton {
 
 				String[] contractNumberDate = contractText.split(" from ");
 
-//				String contractDateReplace = contractNumberDate[1].replace(".", "-");
-//
-//				String[] contractDate = contractDateReplace.split("-");
-//
-//				String contractDateNew = contractDate[2] + "." + contractDate[1] + "." + contractDate[0];
-
 				try {
 					
 					paymentFlat.setIdFlatTable(
 							flatService.getFlatFromFlatBuyerTableByContract(contractNumberDate[0]).getIdFlatTable());
 					
-					
-//					paymentFlat.setIdFlatTable(
-//							flatService.getFlatFromFlatBuyerTableByContract(contractNumberDate[0], contractDateNew)
-//									.getIdFlatTable());
+
 					paymentFlat.setBankTablePaymentDate(bankPaymentDateDateField.getValue());
 					paymentFlat.setBankTablePaymentSum(Double.parseDouble(bankPaymentSumTextField.getValue()));
 					flatService.createBankPayment(paymentFlat);
@@ -186,6 +172,15 @@ public class AddBankInfoButton {
 					e.printStackTrace();
 				}
 
+				try {
+					updateAccountingFlatGrid.updateAccountingFlatGrid(flatList, flatGrid);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+//				flatGrid = flatGridFlatInfoView(flatService.getFlatsFromOrderedFlatTable());
+				
 				bankInfoWindow.close();
 				bankInfoWindowPaymentButton.setEnabled(false);
 

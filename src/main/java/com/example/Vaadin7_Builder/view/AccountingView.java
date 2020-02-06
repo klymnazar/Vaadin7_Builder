@@ -13,6 +13,7 @@ import com.example.Vaadin7_Builder.view.AccountingViewServises.AddExpensesButton
 import com.example.Vaadin7_Builder.view.AccountingViewServises.ExpensesInfoButton;
 import com.example.Vaadin7_Builder.view.AccountingViewServises.IncomeSumButton;
 import com.example.Vaadin7_Builder.view.AccountingViewServises.PaymentInfoButton;
+import com.example.Vaadin7_Builder.view.AccountingViewServises.UpdateAccountingFlatGrid;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Button;
@@ -43,7 +44,7 @@ public class AccountingView extends HorizontalLayout implements View {
 
 	PaymentInfoButton paymentInfoButton = new PaymentInfoButton();
 
-//	private DecimalFormat decimalFormat = new DecimalFormat("0.00");
+	UpdateAccountingFlatGrid updateAccountingFlatGrid = new UpdateAccountingFlatGrid();
 	
 	private Grid flatGrid = new Grid();
 
@@ -53,6 +54,8 @@ public class AccountingView extends HorizontalLayout implements View {
 	private String bcExpenses = "B.C.";
 	private String cmExpenses = "C.M.";
 
+//	private FooterRow flatGridFooterRow = flatGrid.prependFooterRow();
+	
 //	private double generalBC = 0.5; // 50%
 //	private double generalCM = 0.5; // 50%
 
@@ -67,18 +70,30 @@ public class AccountingView extends HorizontalLayout implements View {
 		accountingInfoGridVerticalLayout.setSpacing(true);
 		addComponent(accountingInfoGridVerticalLayout);
 
+//		try {
+//			
+//			flatGrid = flatGridFlatInfoView(flatService.getFlatsFromOrderedFlatTable());
+//			
+//		} catch (SQLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+		
+		List< Flat> flatList = flatService.getFlatsFromOrderedFlatTable();
+		
+//		Grid flatGrid = new Grid();
+		FooterRow flatGridFooterRow = flatGrid.prependFooterRow();
+		
+//		FooterRow infoGridFooterRow = infoGrid.prependFooterRow();
+		
+		
+		flatGrid = flatGridFlatInfoView(flatList, flatGrid);
+		
 		setExpandRatio(accountingInfoGridVerticalLayout, 1.0f);
 
-		addComponent(flatCheckBoxVerticalPanel());
+		addComponent(flatCheckBoxVerticalPanel(flatGrid, flatGridFooterRow));
 
-		try {
-
-			flatGrid = flatGridFlatInfoView(flatService.getFlatsFromOrderedFlatTable());
-
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
 		accountingInfoPanel.setSizeFull();
 		accountingInfoGridVerticalLayout.addComponent(accountingInfoPanel);
@@ -86,12 +101,16 @@ public class AccountingView extends HorizontalLayout implements View {
 		accountingInfoPanel.setContent(flatGrid);
 		accountingInfoGridVerticalLayout.setExpandRatio(accountingInfoPanel, 1.0f);
 
-		accountingInfoGridVerticalLayout.addComponent(flatButtonHorizontalLayout());
+		accountingInfoGridVerticalLayout.addComponent(flatButtonHorizontalLayout(flatList, flatGrid, flatGridFooterRow));
 
 	}
 
-	public Layout flatButtonHorizontalLayout() throws SQLException {
+	public Layout flatButtonHorizontalLayout(List<Flat> flatList, Grid flatGrid, FooterRow flatGridFooterRow) throws SQLException {
 
+//		List< Flat> flatList = flatService.getFlatsFromOrderedFlatTable();
+//		
+//		flatGrid = flatGridFlatInfoView(flatList);
+		
 		HorizontalLayout buttonHorizontalLayout = new HorizontalLayout();
 
 		buttonHorizontalLayout.setSpacing(true);
@@ -100,11 +119,11 @@ public class AccountingView extends HorizontalLayout implements View {
 
 		buttonHorizontalLayout.addComponent(incomeSumButton.incomeSumButton());
 
-		buttonHorizontalLayout.addComponent(addExpensesButton.addExpensesButton(flatGrid));
+		buttonHorizontalLayout.addComponent(addExpensesButton.addExpensesButton("Add Expenses", flatList, flatGrid));
 
 		buttonHorizontalLayout.addComponent(expensesInfoButton.expensesInfoButton());
 
-		buttonHorizontalLayout.addComponent(addBankInfoButton.addBankInfoButton());
+		buttonHorizontalLayout.addComponent(addBankInfoButton.addBankInfoButton(flatList, flatGrid, flatGridFooterRow));
 
 		buttonHorizontalLayout.addComponent(paymentInfoButton.paymentInfoButton());
 
@@ -113,12 +132,17 @@ public class AccountingView extends HorizontalLayout implements View {
 		return buttonHorizontalLayout;
 	}
 
-	public Grid flatGridFlatInfoView(List<Flat> flatList) throws SQLException {
+	
+	
+	
+	
+	
+//	public Grid flatGridFlatInfoView(List<Flat> flatList) throws SQLException {
+	
+	public Grid flatGridFlatInfoView(List<Flat> flatList, Grid flatGrid) throws SQLException {
 
-		DecimalFormat decimalFormat = new DecimalFormat("0.00");
+//		DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
-		
-		Grid flatGrid = new Grid();
 
 		flatGrid.setSizeFull();
 
@@ -134,6 +158,7 @@ public class AccountingView extends HorizontalLayout implements View {
 		flatGrid.addColumn("flatBuyerFirstname", String.class);
 		flatGrid.addColumn("flatBuyerLastname", String.class);
 		flatGrid.addColumn("flatBuyerSurname", String.class);
+		flatGrid.addColumn("flatNotes", String.class);
 		flatGrid.addColumn("flatContractDate", Date.class);
 		flatGrid.addColumn("flatContractNumber", String.class);
 		flatGrid.addColumn("m2, flatCost", Double.class);
@@ -154,7 +179,6 @@ public class AccountingView extends HorizontalLayout implements View {
 		flatGrid.addColumn("$, availableSum", Integer.class);
 		flatGrid.addColumn("m2, availableSum", Double.class);
 		flatGrid.addColumn("flatSellerName", String.class);
-		flatGrid.addColumn("flatNotes", String.class);
 		flatGrid.addColumn("$, 50/50GeneralExpenses", Integer.class);
 		flatGrid.addColumn("m2, 50/50GeneralExpenses", Double.class);
 		flatGrid.addColumn("$, BCExpenses", Integer.class);
@@ -192,95 +216,12 @@ public class AccountingView extends HorizontalLayout implements View {
 		flatGrid.getColumn("bankPaymentSum").setHidden(true);
 		flatGrid.getColumn("m2, bank").setHidden(true);
 
-		double flatArea = 0;
-		int flatCost = 0;
-		int expensesRow = 0;
-		int availableSumRow = 0;
-		double mAvailableSumRow = 0;
-		int generalExpensesRow = 0;
-		double mGeneralExpensesRow = 0;
-		int bcExpensesRow = 0;
-		double mBCExpensesRow = 0;
-		int cmExpensesRow = 0;
-		double mCMExpensesRow = 0;
-		double mTotalBCExpensesRow = 0;
-		double mTotalCMExpensesRow = 0;
-		double bankPaymentSum = 0;
-		int number = 1;
-
-		Iterator<Flat> itr = flatList.iterator();
-		while (itr.hasNext()) {
-			Flat flatFromList = itr.next();
-
-			Flat flatFromBuyerTable = flatService.getFlatByFlatIdFromFlatBuyerTable(flatFromList.getIdFlatTable());
-
-			int expensesGeneral = flatService
-					.getExpensesFlatInfoFromExpensesTableByFlatId(flatFromList.getIdFlatTable(), generalExpenses);
-			int expensesBC = flatService.getExpensesFlatInfoFromExpensesTableByFlatId(flatFromList.getIdFlatTable(),
-					bcExpenses);
-			int expensesCM = flatService.getExpensesFlatInfoFromExpensesTableByFlatId(flatFromList.getIdFlatTable(),
-					cmExpenses);
-			double paymentSum = flatService.getPaymentSumFromBankTableByFlatTableId(flatFromList.getIdFlatTable());
-
-			double flatCost_m$ = flatFromBuyerTable.getFlatCost() / flatFromList.getFlatArea();
-			if (flatCost_m$ == 0) {
-				flatCost_m$ = 0.000000001;
-			}
-
-			int expenses = expensesGeneral + expensesBC + expensesCM;
-
-			int availableSum = flatFromBuyerTable.getFlatCost() - expenses;
-
-			flatArea = flatArea + flatFromList.getFlatArea();
-			flatCost = flatCost + flatFromBuyerTable.getFlatCost();
-			expensesRow = expensesRow + expenses;
-			availableSumRow = availableSumRow + availableSum;
-			mAvailableSumRow = mAvailableSumRow + availableSum / flatCost_m$;
-			generalExpensesRow = generalExpensesRow + expensesGeneral;
-			mGeneralExpensesRow = mGeneralExpensesRow + (expensesGeneral) / flatCost_m$;
-			bcExpensesRow = bcExpensesRow + expensesBC;
-			mBCExpensesRow = mBCExpensesRow + (expensesBC) / flatCost_m$;
-			cmExpensesRow = cmExpensesRow + expensesCM;
-			mCMExpensesRow = mCMExpensesRow + (expensesCM) / flatCost_m$;
-			mTotalBCExpensesRow = mTotalBCExpensesRow + (expensesBC / flatCost_m$)
-					+ (expensesGeneral / flatCost_m$ / 2);
-			mTotalCMExpensesRow = mTotalCMExpensesRow + (expensesCM / flatCost_m$)
-					+ (expensesGeneral / flatCost_m$ / 2);
-			bankPaymentSum = bankPaymentSum + paymentSum;
-
-			flatGrid.addRow(number, flatFromList.getIdFlatTable(), flatFromList.getBuildingCorps(),
-					flatFromList.getFlatRooms(), flatFromList.getFlatFloor(), flatFromList.getFlatNumber(),
-					flatFromList.getFlatArea(), flatFromList.getFlatSet(), flatFromBuyerTable.getFlatBuyerFirstname(),
-					flatFromBuyerTable.getFlatBuyerLastname(), flatFromBuyerTable.getFlatBuyerSurname(),
-					flatFromBuyerTable.getFlatContractDate(), flatFromBuyerTable.getFlatContractNumber(), flatCost_m$,
-					flatFromBuyerTable.getFlatCost(), expenses, "Expenses", availableSum, availableSum / flatCost_m$,
-					flatFromBuyerTable.getFlatSellerName(), flatFromBuyerTable.getFlatNotes(), expensesGeneral,
-					expensesGeneral / flatCost_m$, expensesBC, expensesBC / flatCost_m$,
-					expensesBC / flatCost_m$ + expensesGeneral / flatCost_m$ / 2, expensesCM, expensesCM / flatCost_m$,
-					expensesCM / flatCost_m$ + expensesGeneral / flatCost_m$ / 2, paymentSum,
-					paymentSum / flatFromList.getFlatArea());
-
-			number++;
-		}
-
-		FooterRow flatGridFooterRow = flatGrid.prependFooterRow();
-		flatGridFooterRow.getCell("buildingCorps").setText("Total:");
-		flatGridFooterRow.getCell("flatArea").setText(decimalFormat.format(flatArea));
-		flatGridFooterRow.getCell("$, flatCost").setText(decimalFormat.format(flatCost));
-		flatGridFooterRow.getCell("$, expenses").setText(decimalFormat.format(expensesRow));
-		flatGridFooterRow.getCell("$, availableSum").setText(decimalFormat.format(availableSumRow));
-		flatGridFooterRow.getCell("m2, availableSum").setText(decimalFormat.format(mAvailableSumRow));
-		flatGridFooterRow.getCell("$, 50/50GeneralExpenses").setText(decimalFormat.format(generalExpensesRow));
-		flatGridFooterRow.getCell("m2, 50/50GeneralExpenses").setText(decimalFormat.format(mGeneralExpensesRow));
-		flatGridFooterRow.getCell("$, BCExpenses").setText(decimalFormat.format(bcExpensesRow));
-		flatGridFooterRow.getCell("m2, BCExpenses").setText(decimalFormat.format(mBCExpensesRow));
-		flatGridFooterRow.getCell("m2, totalBCExpenses").setText(decimalFormat.format(mTotalBCExpensesRow) + "m2"
-				+ ", left - " + decimalFormat.format(flatArea * 70 / 100 - mTotalBCExpensesRow) + "m2");
-		flatGridFooterRow.getCell("$, CMExpenses").setText(decimalFormat.format(cmExpensesRow));
-		flatGridFooterRow.getCell("m2, CMExpenses").setText(decimalFormat.format(mCMExpensesRow));
-		flatGridFooterRow.getCell("m2, totalCMExpenses").setText(decimalFormat.format(mTotalCMExpensesRow) + "m2"
-				+ ", left - " + decimalFormat.format(flatArea * 30 / 100 - mTotalCMExpensesRow) + "m2");
-		flatGridFooterRow.getCell("bankPaymentSum").setText(decimalFormat.format(bankPaymentSum));
+		
+//		FooterRow flatGridFooterRow = flatGrid.getFooterRow(0);
+		
+		updateAccountingFlatGrid.updateAccountingFlatGrid(flatList, flatGrid);
+		
+		
 
 		return flatGrid;
 
@@ -430,7 +371,7 @@ public class AccountingView extends HorizontalLayout implements View {
 		return detailsInfoWindow;
 	}
 
-	public Panel flatCheckBoxVerticalPanel() {
+	public Panel flatCheckBoxVerticalPanel(Grid flatGrid, FooterRow flatGridFooterRow) {
 
 		Panel settingsCheckBoxPanel = new Panel("Settings");
 		settingsCheckBoxPanel.setWidth("210px");
@@ -584,7 +525,14 @@ public class AccountingView extends HorizontalLayout implements View {
 			if (expensesWindowCorpsComboBox.getValue().toString().equals("All Building Corps")) {
 
 				try {
-					flatGrid = flatGridFlatInfoView(flatService.getFlatsFromOrderedFlatTable());
+					
+					List< Flat> flatList = flatService.getFlatsFromOrderedFlatTable();
+//					
+//					flatGrid = flatGridFlatInfoView(flatList);
+					
+					updateAccountingFlatGrid.updateAccountingFlatGrid(flatList, flatGrid);
+					
+//					flatGrid = flatGridFlatInfoView(flatService.getFlatsFromOrderedFlatTable());
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -594,8 +542,13 @@ public class AccountingView extends HorizontalLayout implements View {
 
 				try {
 
-					flatGrid = flatGridFlatInfoView(flatService
-							.getFlatsByCorpsFromFlatTable(expensesWindowCorpsComboBox.getValue().toString()));
+					List< Flat> flatList = flatService
+							.getFlatsByCorpsFromFlatTable(expensesWindowCorpsComboBox.getValue().toString());
+					
+					updateAccountingFlatGrid.updateAccountingFlatGrid(flatList, flatGrid);
+					
+//					flatGrid = flatGridFlatInfoView(flatService
+//							.getFlatsByCorpsFromFlatTable(expensesWindowCorpsComboBox.getValue().toString()));
 
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
@@ -656,12 +609,14 @@ public class AccountingView extends HorizontalLayout implements View {
 			flatGrid.getColumn("flatBuyerFirstname").setHidden(true);
 			flatGrid.getColumn("flatBuyerLastname").setHidden(true);
 			flatGrid.getColumn("flatBuyerSurname").setHidden(true);
+			flatGrid.getColumn("flatNotes").setHidden(true);
 
 		} else {
 
 			flatGrid.getColumn("flatBuyerFirstname").setHidden(false);
 			flatGrid.getColumn("flatBuyerLastname").setHidden(false);
 			flatGrid.getColumn("flatBuyerSurname").setHidden(false);
+			flatGrid.getColumn("flatNotes").setHidden(false);
 
 		}
 	}
@@ -811,6 +766,13 @@ public class AccountingView extends HorizontalLayout implements View {
 		return cancelButton;
 	}
 
+//	public void updateFlatGrid() {
+//		
+//		flatGrid = flatGridFlatInfoView(flatService.getFlatsFromOrderedFlatTable());
+//		
+//	}
+	
+	
 	@Override
 	public void enter(ViewChangeEvent event) {
 		// TODO Auto-generated method stub

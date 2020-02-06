@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -20,7 +21,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<!-- If there are no local customisations, this can also be "fetch" or "cdn" -->
+		<!-- If there are no local customisations, this can also be "fetch" or 
+			"cdn" -->
 		<vaadin.widgetset.mode>local</vaadin.widgetset.mode>
 	</properties>
 
@@ -66,17 +68,31 @@
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-themes</artifactId>
 		</dependency>
-		
+
 		<dependency>
-		    <groupId>mysql</groupId>
-		    <artifactId>mysql-connector-java</artifactId>
-		    <version>8.0.17</version>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.17</version>
 		</dependency>
-		
+
 	</dependencies>
 
 	<build>
 		<plugins>
+
+			<!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-maven-plugin -->
+			<plugin>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>9.4.26.v20200117</version>
+				<configuration>
+					<scanIntervalSeconds>10</scanIntervalSeconds>
+					<webApp>
+						<contextPath>/Vaadin7_BuilderWebApp</contextPath>
+					</webApp>
+				</configuration>
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
@@ -121,7 +137,7 @@
 				</configuration>
 			</plugin>
 
-			<!-- The Jetty plugin allows us to easily test the development build by
+			<!-- The Jetty plugin allows us to easily test the development build by 
 				running jetty:run on the command line. -->
 			<plugin>
 				<groupId>org.eclipse.jetty</groupId>

@@ -9,8 +9,13 @@ import java.util.List;
 import com.example.Vaadin7_Builder.model.Flat;
 import com.example.Vaadin7_Builder.service.FlatService;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.DateField;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.FooterRow;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
 
 public class IncomeSumButton extends IncomeExpensesInfo {
 //дохід
@@ -74,7 +79,15 @@ public class IncomeSumButton extends IncomeExpensesInfo {
 
 		List<Flat> selectAllflatsList = flatService.getFlatsFromFlatBuyerTable();
 
-		Button incomeSumButton = infoButton("Income Sum", "Income Info", selectAllflatsList);
+		
+		
+		List<Flat> updateFlatBuyerList = flatService.getFlatsFromFlatBuyerTable();
+		
+		
+		
+		
+		
+		Button incomeSumButton = infoButton("Income Sum", "Income Info", selectAllflatsList, updateFlatBuyerList);
 
 		return incomeSumButton;
 
@@ -134,5 +147,82 @@ public class IncomeSumButton extends IncomeExpensesInfo {
 		return expensesList;
 
 	}
+
+	@Override
+	public void updateInfoGrid(Grid infoGrid, List<Flat> flatList) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Grid infoGrid(int idFlatTableIntFromSelectedRow) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getIdFlatTableIntFromSelectedRow(Grid flatGrid) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void addInfoGrid(HorizontalLayout expensesWindowInfoHorizontalLayout, Grid flatGrid) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setValuesBySelectedRow(Grid infoGrid, DateField expensesDateField,
+			TextField expensesSumTextField, ComboBox expensesCategoryComboBox, ComboBox expensesValueComboBox,
+			TextArea expensesValueTextArea) {
+		Flat flat = new Flat();
+		
+		try {
+			flat = flatService.getFlatByFlatIdFromFlatBuyerTable(30);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		expensesDateField.setValue(flat.getFlatContractDate());
+		expensesSumTextField.setValue("" + flat.getFlatCost());
+		expensesCategoryComboBox.setValue(flat.getExpensesTableCategory());
+		expensesValueComboBox.setValue(flat.getExpensesTableValue());
+		expensesValueTextArea.setValue(flat.getExpensesTableValueTA());
+		
+	}
+
+//	@Override
+//	public Flat setExpensesValuesBySelectedRow(Grid infoGrid, Flat flat) {
+//		try {
+//			flat = flatService.getFlatByIdFromExpensesTable(getIdExpensesTableIntFromSelectedRow(infoGrid));
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+//		
+//		return flat;
+//		return null;
+//	}
+
+//	@Override
+//	public void setExpensesValuesBySelectedRow() {
+//		// TODO Auto-generated method stub
+//		
+//	}
+
+//	@Override
+//	public void setExpensesValuesBySelectedRow(Grid infoGrid, DateField expensesDateField,
+//			TextField expensesSumTextField, ComboBox expensesCategoryComboBox, ComboBox expensesValueComboBox,
+//			TextArea expensesValueTextArea) {
+//		// TODO Auto-generated method stub
+//		
+//	}
+
+//	@Override
+//	public List<Flat> expensesWindowAllExpenses() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
 }
