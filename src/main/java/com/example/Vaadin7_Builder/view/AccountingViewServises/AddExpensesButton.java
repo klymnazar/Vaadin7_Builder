@@ -77,9 +77,8 @@ public class AddExpensesButton extends AddEditExpensesWindow {
 	}
 
 	@Override
-	public void setValuesBySelectedRow(Grid infoGrid, DateField expensesDateField,
-			TextField expensesSumTextField, ComboBox expensesCategoryComboBox, ComboBox expensesValueComboBox,
-			TextArea expensesValueTextArea) {
+	public void setValuesBySelectedRow(Grid infoGrid, DateField expensesDateField, TextField expensesSumTextField,
+			ComboBox expensesCategoryComboBox, ComboBox expensesValueComboBox, TextArea expensesValueTextArea) {
 		// TODO Auto-generated method stub
 		
 	}

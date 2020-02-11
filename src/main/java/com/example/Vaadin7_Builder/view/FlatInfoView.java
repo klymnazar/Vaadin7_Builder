@@ -227,6 +227,9 @@ public class FlatInfoView extends VerticalLayout implements View {
 		return buttonHorizontalLayout;
 	}
 
+	
+///////////////////////////	
+	
 	public int getIdFlatTableFromSelectedRow() throws SQLException {
 
 		int idFlatTableFromSelectedRow;
@@ -243,6 +246,9 @@ public class FlatInfoView extends VerticalLayout implements View {
 
 	}
 
+////////////////////////////	
+	
+	
 	public void buttonHorizontalLayoutEvent(Button nameButton, String flatSetOld, String flatSetNew) {
 
 		nameButton.setEnabled(false);
@@ -301,6 +307,11 @@ public class FlatInfoView extends VerticalLayout implements View {
 		return canselReservFlatButton;
 	}
 
+	
+	
+	
+//////////////////////////
+	
 	public Button saleFlatButton() throws SQLException {
 
 		Button saleFlatButton = new Button("Sale Flat");
@@ -327,6 +338,9 @@ public class FlatInfoView extends VerticalLayout implements View {
 
 		saleFlatButton.addClickListener(e -> {
 
+
+			
+			
 			Window saleFlatWindow = new Window("Sale Flat");
 			saleFlatWindow.setWidth("900px");
 			saleFlatWindow.setHeight("600px");
@@ -343,6 +357,9 @@ public class FlatInfoView extends VerticalLayout implements View {
 			saleFlatWindowVerticalLayout.addComponent(saleFlatWindowInfoHorizontalLayout);
 			saleFlatWindowVerticalLayout.setExpandRatio(saleFlatWindowInfoHorizontalLayout, 1.0f);
 
+			
+			
+			
 			FormLayout saleFlatWindowFormLayout = new FormLayout();
 			saleFlatWindowFormLayout.setMargin(true);
 
@@ -379,6 +396,10 @@ public class FlatInfoView extends VerticalLayout implements View {
 			saleFlatBuyerInfoPanel.setSizeFull();
 
 			saleFlatBuyerInfoPanel.setContent(saleFlatWindowFormLayout);
+			
+			
+
+			
 			saleFlatWindowInfoHorizontalLayout.addComponent(saleFlatBuyerInfoPanel);
 
 			Panel saleFlatInfoGridPanel = new Panel("Flat Info");
@@ -516,6 +537,15 @@ public class FlatInfoView extends VerticalLayout implements View {
 
 	}
 
+/////////////////////////////////
+	
+	
+	
+	
+	
+	
+	
+	
 	public Button cancelButton() {
 
 		Button cancelButton = new Button("Cancel");

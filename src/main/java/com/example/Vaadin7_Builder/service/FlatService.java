@@ -37,6 +37,8 @@ public class FlatService {
 
 		conn.close();
 
+	
+		
 	}
 
 	public void createBuyerFlat(Flat buyerFlat) throws SQLException {
@@ -220,6 +222,38 @@ public class FlatService {
 
 	}
 
+	
+	public void updateFlatBuyerTableByFlatId(int flatId, Flat flat) throws SQLException {
+
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String flatContractDate = dateFormat.format(flat.getFlatContractDate());
+		
+		String flatBuyerLastname = flat.getFlatBuyerLastname();
+		String flatBuyerFirstname = flat.getFlatBuyerFirstname();
+		String flatBuyerSurname = flat.getFlatBuyerSurname();
+		Integer flatCost = flat.getFlatCost();
+		String flatNotes = flat.getFlatNotes();
+		
+		SqlConnection sqlConnection = new SqlConnection();
+		Connection conn = sqlConnection.sqlConnection();
+
+		String sql = "UPDATE flatBuyerTable SET flatContractDate = TIMESTAMP('" + flatContractDate + "'),"
+				+ " flatBuyerLastname = '" + flatBuyerLastname + "', flatBuyerFirstname = '" + flatBuyerFirstname + "',"
+						+ " flatBuyerSurname = '" + flatBuyerSurname + "', flatCost = " + flatCost + ","
+								+ " flatNotes = '" + flatNotes + "' WHERE idflatTable =" + flatId;
+
+//		System.out.println(sql);
+		Statement statement = conn.createStatement();
+
+		statement.executeUpdate(sql);
+
+		conn.close();
+
+	}
+	
+	
+	
 	public void deleteFlatByFlatId(int flatId) throws SQLException {
 
 		SqlConnection sqlConnection = new SqlConnection();
@@ -227,6 +261,21 @@ public class FlatService {
 
 		String sql = "DELETE FROM flatTable WHERE idFlatTable = " + flatId;
 
+//			System.out.println(sql);
+		Statement statement = conn.createStatement();
+		statement.executeUpdate(sql);
+
+		conn.close();
+	}
+	
+	
+	public void deleteFlatByIdFromBuyerTable(int flatId) throws SQLException {
+
+		SqlConnection sqlConnection = new SqlConnection();
+		Connection conn = sqlConnection.sqlConnection();
+
+		String sql = "DELETE FROM flatBuyerTable WHERE idFlatTable = " + flatId;
+ 
 //			System.out.println(sql);
 		Statement statement = conn.createStatement();
 		statement.executeUpdate(sql);
@@ -774,8 +823,8 @@ public class FlatService {
 		while (rs.next()) {
 
 			flat.setIdFlatTable(rs.getInt(2));
-			flat.setFlatBuyerFirstname(rs.getString(3));
-			flat.setFlatBuyerLastname(rs.getString(4));
+			flat.setFlatBuyerLastname(rs.getString(3));
+			flat.setFlatBuyerFirstname(rs.getString(4));
 			flat.setFlatBuyerSurname(rs.getString(5));
 			flat.setFlatContractDate(rs.getDate(6));
 			flat.setFlatContractNumber(rs.getString(7));

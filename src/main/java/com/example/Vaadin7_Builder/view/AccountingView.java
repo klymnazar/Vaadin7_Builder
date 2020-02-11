@@ -119,7 +119,7 @@ public class AccountingView extends HorizontalLayout implements View {
 
 		buttonHorizontalLayout.addComponent(incomeSumButton.incomeSumButton());
 
-		buttonHorizontalLayout.addComponent(addExpensesButton.addExpensesButton("Add Expenses", flatList, flatGrid));
+		buttonHorizontalLayout.addComponent(addExpensesButton.addExpensesButton("Add Expenses", flatGrid));
 
 		buttonHorizontalLayout.addComponent(expensesInfoButton.expensesInfoButton());
 
@@ -219,7 +219,7 @@ public class AccountingView extends HorizontalLayout implements View {
 		
 //		FooterRow flatGridFooterRow = flatGrid.getFooterRow(0);
 		
-		updateAccountingFlatGrid.updateAccountingFlatGrid(flatList, flatGrid);
+		updateAccountingFlatGrid.updateAccountingFlatGrid(flatGrid);
 		
 		
 
@@ -526,11 +526,11 @@ public class AccountingView extends HorizontalLayout implements View {
 
 				try {
 					
-					List< Flat> flatList = flatService.getFlatsFromOrderedFlatTable();
+//					List< Flat> flatList = flatService.getFlatsFromOrderedFlatTable();
 //					
 //					flatGrid = flatGridFlatInfoView(flatList);
 					
-					updateAccountingFlatGrid.updateAccountingFlatGrid(flatList, flatGrid);
+					updateAccountingFlatGrid.updateAccountingFlatGrid(flatGrid);
 					
 //					flatGrid = flatGridFlatInfoView(flatService.getFlatsFromOrderedFlatTable());
 				} catch (SQLException e) {
@@ -545,7 +545,7 @@ public class AccountingView extends HorizontalLayout implements View {
 					List< Flat> flatList = flatService
 							.getFlatsByCorpsFromFlatTable(expensesWindowCorpsComboBox.getValue().toString());
 					
-					updateAccountingFlatGrid.updateAccountingFlatGrid(flatList, flatGrid);
+					updateAccountingFlatGrid.updateAccountingFlatGrid(flatGrid);
 					
 //					flatGrid = flatGridFlatInfoView(flatService
 //							.getFlatsByCorpsFromFlatTable(expensesWindowCorpsComboBox.getValue().toString()));

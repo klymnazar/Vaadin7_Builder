@@ -20,7 +20,7 @@ public class UpdateAccountingFlatGrid {
 	private String bcExpenses = "B.C.";
 	private String cmExpenses = "C.M.";
 
-	public void updateAccountingFlatGrid(List<Flat> flatList, Grid flatGrid)
+	public void updateAccountingFlatGrid(Grid flatGrid)
 			throws SQLException {
 
 		flatGrid.getContainerDataSource().removeAllItems();
@@ -41,6 +41,8 @@ public class UpdateAccountingFlatGrid {
 		double bankPaymentSum = 0;
 		int number = 1;
 
+		List<Flat> flatList = flatService.getFlatsFromOrderedFlatTable();
+		
 		Iterator<Flat> itr = flatList.iterator();
 		while (itr.hasNext()) {
 			Flat flatFromList = itr.next();

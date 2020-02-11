@@ -4,10 +4,7 @@ import java.net.URL;
 import java.sql.SQLException;
 
 import com.example.Vaadin7_Builder.model.User;
-import com.mysql.cj.x.protobuf.MysqlxNotice.SessionStateChanged.Parameter;
-//import com.example.Vaadin7_Builder.service.PhoneNumberCustomComponent;
-//import com.example.Vaadin7_Builder.service.UserService;
-//import com.vaadin.data.validator.StringLengthValidator;
+import com.mysql.cj.x.protobuf.MysqlxNotice.SessionStateChanged.Parameter; //change DataBase SQL -> H2
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 //import com.vaadin.shared.ui.MarginInfo;

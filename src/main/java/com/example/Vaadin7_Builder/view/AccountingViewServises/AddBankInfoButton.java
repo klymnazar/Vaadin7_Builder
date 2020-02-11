@@ -173,7 +173,7 @@ public class AddBankInfoButton {
 				}
 
 				try {
-					updateAccountingFlatGrid.updateAccountingFlatGrid(flatList, flatGrid);
+					updateAccountingFlatGrid.updateAccountingFlatGrid(flatGrid);
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
