@@ -12,12 +12,16 @@ import com.example.Vaadin7_Builder.model.User;
 
 public class UserService {
 	
+//	SqlConnection sqlConnection = new SqlConnection();
+//	Connection conn = sqlConnection.sqlConnection();
+	
 	public List<User> getUsers() throws SQLException {
 		
 		List<User> userList = new ArrayList<>();
-		
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 		
 		String sql = "SELECT * FROM userTable";
 		
@@ -46,15 +50,18 @@ public class UserService {
 			userList.add(user);
 		}
 		
-		conn.close();
-		
+//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return userList;
 	}
 	
 
 	public void createUser(User user) throws SQLException {
 		
-		
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
 		String userPhone = user.getUserPhone();
 		String userFirstName = user.getUserFirstName();
 		String userLastName = user.getUserLastName(); 
@@ -62,8 +69,8 @@ public class UserService {
 		String userPassword = user.getUserPassword();
 		String userMail = user.getUserMail();
 		
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 		
 		String sql = "INSERT INTO userTable (userFirstName, userLastName, userName, userPassword, userMail, userPhone)"
      			 + " VALUES ('" + userFirstName + "', '" + userLastName + "', '" + userName + "',"
@@ -72,17 +79,20 @@ public class UserService {
 //		System.out.println(sql);
 		Statement statement = conn.createStatement();
 		statement.executeUpdate(sql);
-		
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+//		conn.close();
 	}
 	
 	
 	public User getUserById(int id) throws SQLException {
 		
 		User user = new User();
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 		
 		String sql = "SELECT * FROM usertable WHERE iduserTable='" + id + "'";
 				
@@ -107,8 +117,10 @@ public class UserService {
 			}
 		}
 		
-		conn.close();
-		
+//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}	
 		return user;
 	}
 	
@@ -116,9 +128,10 @@ public class UserService {
 	public User getUserByUserName(String userName) throws SQLException {
 		
 		User user = new User();
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 		
 		String sql = "SELECT * FROM usertable WHERE userName='" + userName + "'";
 				
@@ -143,34 +156,40 @@ public class UserService {
 			}
 		}
 		
-		conn.close();
-		
+//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}	
 		return user;
 	}
 	
 	
 	public void deleteUser(User user) throws SQLException {
 		//by id or username
-		
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
 //		int idUser = 13;
 		String userName = user.getUserName();
 		
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 				
 		String sql = "DELETE FROM usertable WHERE userName='" + userName + "'";
 		
 //		System.out.println(sql);
 		Statement statement = conn.createStatement();
 		statement.executeUpdate(sql);
-		
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}	
+//		conn.close();
 	}
 	
 	
 	public void updateUser(User user) throws SQLException {
 		//by username (id)
-		
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
 //		int idUser = user.getIduserTable();
 		String userName = user.getUserName();
 		String userFirstName = user.getUserFirstName();
@@ -179,8 +198,8 @@ public class UserService {
 		String userMail = user.getUserMail();
 		String userPhone = user.getUserPhone();
 		
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 		
 		String sql = "UPDATE usertable SET userFirstName='" + userFirstName + "', userLastName='" + userLastName + "',"
 										+ " userPassword='" + userPassword + "', userMail='" + userMail + "',"
@@ -191,29 +210,36 @@ public class UserService {
 //		System.out.println(sql);
 		Statement statement = conn.createStatement();
 		statement.executeUpdate(sql);
-		
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}	
+//		conn.close();
 	}
 	
 	///////////////////
 	
 	public int countUser() throws SQLException {
 		
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
-		
+		int val = 0;
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
 		String sql = "SELECT COUNT(iduserTable) FROM usertable";
 		
 //		System.out.println(sql);
 		Statement statement = conn.createStatement();
 		ResultSet rs = statement.executeQuery(sql);
 		
-		int val = 0;
 		
 		while (rs.next()) {
 			val = rs.getInt(1);
 		}
-		conn.close();
+//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
 		return val;
 	}
 
@@ -221,9 +247,10 @@ public class UserService {
 	public List<Integer> getIdUserTable() throws SQLException {
 		
 		List<Integer> idUserTableList = new ArrayList<>();
-		
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 		
 		String sql = "SELECT iduserTable FROM userTable";
 		
@@ -237,7 +264,11 @@ public class UserService {
 			row++;
 			idUserTableList.add(rs.getInt(1));
 		}
-		conn.close();
+//		conn.close();
+		
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return idUserTableList;
 	}
 	
@@ -245,11 +276,12 @@ public class UserService {
 	//not Test
 	
 	public boolean isUser(String userName) throws SQLException {
-		
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
 //		List<User> userList = new ArrayList<>();
 		
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 		
 		String sql = "SELECT userName FROM userTable";
 		
@@ -290,10 +322,12 @@ public class UserService {
 //			userList.add(user);
 		}
 		
-		conn.close();
+//		conn.close();
 		
 //		return userList;
-		
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		
 		
 		return false;
@@ -310,9 +344,10 @@ public class UserService {
 	
 	
 	public void printAllDB() throws SQLException {
-		
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 		
 		String sql = "SELECT * FROM usertable";
 				
@@ -334,15 +369,18 @@ public class UserService {
 				System.out.println(name + " = " + val);
 			}
 		}
-		
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+//		conn.close();
 	}	
 	
 	
 	public void printByIdDB(int id) throws SQLException {
-		
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 		
 		String sql = "SELECT * FROM usertable WHERE iduserTable='" + id + "'";
 				
@@ -360,8 +398,10 @@ public class UserService {
 				System.out.println(name + " = " + val);
 			}
 		}
-		
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+//		conn.close();
 	}	
 	
 	

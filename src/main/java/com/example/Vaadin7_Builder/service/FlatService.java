@@ -15,34 +15,71 @@ import com.example.Vaadin7_Builder.model.Flat;
 
 public class FlatService {
 
+//	SqlConnection sqlConnection = new SqlConnection();
+//	Connection conn = sqlConnection.sqlConnection();
+//
+//	public void createFlat(Flat flat) throws SQLException {
+//
+//		String buildingCorps = flat.getBuildingCorps();
+//		int flatFloor = flat.getFlatFloor();
+//		int flatNumber = flat.getFlatNumber();
+//		double flatArea = flat.getFlatArea();
+//		Object flatRooms = flat.getFlatRooms();
+//		String flatSet = "";
+//
+////		SqlConnection sqlConnection = new SqlConnection();
+////		Connection conn = sqlConnection.sqlConnection();
+//
+//		String sql = "INSERT INTO flatTable (buildingCorps, flatFloor, flatNumber, flatArea, flatRooms, flatSet) VALUES ('"
+//				+ buildingCorps + "'," + flatFloor + ", " + flatNumber + ", " + flatArea + ", " + flatRooms + ", '"
+//				+ flatSet + "')";
+//
+////		System.out.println(sql);
+//		Statement statement = conn.createStatement();
+//		statement.executeUpdate(sql);
+//
+//		//		conn.close();
+//
+//	
+//		
+//	}
+	
+	
 	public void createFlat(Flat flat) throws SQLException {
 
-		String buildingCorps = flat.getBuildingCorps();
-		int flatFloor = flat.getFlatFloor();
-		int flatNumber = flat.getFlatNumber();
-		double flatArea = flat.getFlatArea();
-		Object flatRooms = flat.getFlatRooms();
-		String flatSet = "";
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+			
+			String buildingCorps = flat.getBuildingCorps();
+			int flatFloor = flat.getFlatFloor();
+			int flatNumber = flat.getFlatNumber();
+			double flatArea = flat.getFlatArea();
+			Object flatRooms = flat.getFlatRooms();
+			String flatSet = "";
 
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+			String sql = "INSERT INTO flatTable (buildingCorps, flatFloor, flatNumber, flatArea, flatRooms, flatSet) VALUES ('"
+					+ buildingCorps + "'," + flatFloor + ", " + flatNumber + ", " + flatArea + ", " + flatRooms + ", '"
+					+ flatSet + "')";
 
-		String sql = "INSERT INTO flatTable (buildingCorps, flatFloor, flatNumber, flatArea, flatRooms, flatSet) VALUES ('"
-				+ buildingCorps + "'," + flatFloor + ", " + flatNumber + ", " + flatArea + ", " + flatRooms + ", '"
-				+ flatSet + "')";
+//			System.out.println(sql);
+			Statement statement = conn.createStatement();
+			statement.executeUpdate(sql);
+			
+			
+			
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 
-//		System.out.println(sql);
-		Statement statement = conn.createStatement();
-		statement.executeUpdate(sql);
-
-		conn.close();
-
-	
 		
 	}
 
 	public void createBuyerFlat(Flat buyerFlat) throws SQLException {
 
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+		
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 		int idflatTable = buyerFlat.getIdFlatTable();
@@ -55,8 +92,8 @@ public class FlatService {
 		String flatSellerName = buyerFlat.getFlatSellerName();
 		String flatNotes = buyerFlat.getFlatNotes();
 
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "INSERT INTO flatbuyerTable (idflatTable, flatBuyerFirstname, flatBuyerLastname, flatBuyerSurname,"
 				+ " flatContractNumber, flatContractDate, flatCost, flatSellerName, flatNotes)" + " VALUES ("
@@ -68,21 +105,25 @@ public class FlatService {
 		Statement statement = conn.createStatement();
 
 		statement.executeUpdate(sql);
-
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 
 	}
 
 	public void createBankPayment(Flat flat) throws SQLException {
 
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+		
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 		int idflatTable = flat.getIdFlatTable();
 		String bankTablePaymentDate = dateFormat.format(flat.getBankTablePaymentDate());
 		double bankTablePaymentSum = flat.getBankTablePaymentSum();
 
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "INSERT INTO bankTable (idflatTable, bankTablePaymentDate, bankTablePaymentSum) VALUES ("
 				+ idflatTable + ", TIMESTAMP('" + bankTablePaymentDate + "'), " + bankTablePaymentSum + ")";
@@ -90,34 +131,39 @@ public class FlatService {
 //		System.out.println(sql);
 		Statement statement = conn.createStatement();
 		statement.executeUpdate(sql);
-
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 
 	}
 
 	public void createSettings(Flat flat) throws SQLException {
-
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
 		String buildingCorps = flat.getBuildingCorps();
 
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "INSERT INTO settingsTable (buildingCorps) VALUES ('" + buildingCorps + "')";
 
 //		System.out.println(sql);
 		Statement statement = conn.createStatement();
 		statement.executeUpdate(sql);
-
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+//		//		conn.close();
 
 	}
 
 	public List<Flat> getSelectedItemsByDateFromBankTable(String fromDate, String toDate) throws SQLException {
-
 		List<Flat> flatList = new ArrayList<>();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
 
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT * FROM bankTable WHERE bankTablePaymentDate >= '" + fromDate
 				+ "' AND bankTablePaymentDate <= '" + toDate + "'";
@@ -141,21 +187,25 @@ public class FlatService {
 			flatList.add(flat);
 		}
 
-		conn.close();
+//		//		conn.close();
 
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return flatList;
 	}
 
 	public void updateFlatTableByFlatId(int flatId, Flat flat) throws SQLException {
-
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
 		String buildingCorps = flat.getBuildingCorps();
 		int flatRooms = flat.getFlatRooms();
 		int flatFloor = flat.getFlatFloor();
 		int flatNumber = flat.getFlatNumber();
 		double flatArea = flat.getFlatArea();
 
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "UPDATE flatTable SET buildingCorps = '" + buildingCorps + "', flatRooms = " + flatRooms
 				+ ", flatFloor = " + flatFloor + ", flatNumber = " + flatNumber + ", flatArea = " + flatArea
@@ -165,15 +215,18 @@ public class FlatService {
 		Statement statement = conn.createStatement();
 
 		statement.executeUpdate(sql);
-
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		//		conn.close();
 
 	}
 
 	
 	public void updateExpensesTableById(int flatId, Flat flat) throws SQLException {
 
-		
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 //		int idflatTable = flat.getIdFlatTable();
@@ -186,8 +239,8 @@ public class FlatService {
 		String expensesTableValue = flat.getExpensesTableValue();
 		String expensesTableValueTA = flat.getExpensesTableValueTA();
 
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 //		String sql = "INSERT INTO expensesTable (idflatTable, expensesTableDate, expensesTableSum, expensesTableCategory, expensesTableValue, expensesTableValue) VALUES ("
 //				+ idflatTable + ", TIMESTAMP('" + expensesTableDate + "'), " + expensesTableSum + ", '"
@@ -199,17 +252,20 @@ public class FlatService {
 		Statement statement = conn.createStatement();
 
 		statement.executeUpdate(sql);
-
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		//		conn.close();
 
 	}
 	
 	
 	
 	public void updateFlatSetByFlatIdInFlatTable(int flatId, String flatSet) throws SQLException {
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "UPDATE flatTable SET flatSet = '" + flatSet + "' WHERE idflatTable =" + flatId;
 
@@ -217,14 +273,17 @@ public class FlatService {
 		Statement statement = conn.createStatement();
 
 		statement.executeUpdate(sql);
-
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		//		conn.close();
 
 	}
 
 	
 	public void updateFlatBuyerTableByFlatId(int flatId, Flat flat) throws SQLException {
-
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
 		
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		String flatContractDate = dateFormat.format(flat.getFlatContractDate());
@@ -235,8 +294,8 @@ public class FlatService {
 		Integer flatCost = flat.getFlatCost();
 		String flatNotes = flat.getFlatNotes();
 		
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "UPDATE flatBuyerTable SET flatContractDate = TIMESTAMP('" + flatContractDate + "'),"
 				+ " flatBuyerLastname = '" + flatBuyerLastname + "', flatBuyerFirstname = '" + flatBuyerFirstname + "',"
@@ -247,66 +306,78 @@ public class FlatService {
 		Statement statement = conn.createStatement();
 
 		statement.executeUpdate(sql);
-
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		//		conn.close();
 
 	}
 	
 	
 	
 	public void deleteFlatByFlatId(int flatId) throws SQLException {
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "DELETE FROM flatTable WHERE idFlatTable = " + flatId;
 
 //			System.out.println(sql);
 		Statement statement = conn.createStatement();
 		statement.executeUpdate(sql);
-
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		//		conn.close();
 	}
 	
 	
 	public void deleteFlatByIdFromBuyerTable(int flatId) throws SQLException {
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "DELETE FROM flatBuyerTable WHERE idFlatTable = " + flatId;
  
 //			System.out.println(sql);
 		Statement statement = conn.createStatement();
 		statement.executeUpdate(sql);
-
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		//		conn.close();
 	}
 	
 	
 	public void deleteFlatByIdFromExpensesTable(int flatId) throws SQLException {
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "DELETE FROM expensesTable WHERE idExpensesTable = " + flatId;
  
 //			System.out.println(sql);
 		Statement statement = conn.createStatement();
 		statement.executeUpdate(sql);
-
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		//		conn.close();
 	}
 	
 	
 	
 
 	public int countFlats() throws SQLException {
-
 		int count = 0;
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
 
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT COUNT(flatNumber) FROM flatTable";
 
@@ -326,17 +397,20 @@ public class FlatService {
 			}
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return count;
 	}
 
 	public double sumFlatsAreaByCorpsFromFlatTable(String corps) throws SQLException {
-
 		double allFlatsArea = 0;
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
 
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT SUM(flatArea) FROM flatTable WHERE buildingCorps = '" + corps + "'";
 
@@ -355,18 +429,21 @@ public class FlatService {
 
 			}
 		}
-
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		//		conn.close();
 
 		return allFlatsArea;
 	}
 
 	public double sumAllFlatsArea() throws SQLException {
-
 		double allFlatsArea = 0;
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
 
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT SUM(flatArea) FROM flatTable";
 
@@ -385,8 +462,10 @@ public class FlatService {
 
 			}
 		}
-
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		//		conn.close();
 
 		return allFlatsArea;
 	}
@@ -394,9 +473,10 @@ public class FlatService {
 	public List<Flat> getFlatsFromOrderedFlatTable() throws SQLException {
 
 		List<Flat> flatList = new ArrayList<>();
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT * FROM flatTable ORDER BY buildingCorps, flatNumber";
 
@@ -424,17 +504,20 @@ public class FlatService {
 			flatList.add(flat);
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return flatList;
 	}
 
 	public List<Flat> getFlatsByCorpsFromFlatTable(String corps) throws SQLException {
 
 		List<Flat> flatList = new ArrayList<>();
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT * FROM flatTable WHERE buildingCorps = '" + corps + "'";
 
@@ -462,15 +545,19 @@ public class FlatService {
 			flatList.add(flat);
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return flatList;
 	}
 
 	public Flat getFlatByCorpsAndNumberFromFlatTable(String corps, int number) throws SQLException {
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		Flat flat = new Flat();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT * FROM flatTable WHERE buildingCorps = '" + corps + "' AND flatNumber = " + number;
 
@@ -479,7 +566,6 @@ public class FlatService {
 
 		ResultSet rs = statement.executeQuery(sql);
 
-		Flat flat = new Flat();
 
 		while (rs.next()) {
 
@@ -493,17 +579,20 @@ public class FlatService {
 
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return flat;
 	}
 
 	public List<Flat> getCorpsFromSettingsTable() throws SQLException {
 
 		List<Flat> flatList = new ArrayList<>();
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT * FROM settingsTable";
 
@@ -525,17 +614,20 @@ public class FlatService {
 			flatList.add(flat);
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return flatList;
 	}
 
 	public List<Flat> getFlatsFromFlatBuyerTable() throws SQLException {
 
 		List<Flat> flatList = new ArrayList<>();
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT * FROM flatBuyerTable";
 
@@ -565,17 +657,20 @@ public class FlatService {
 			flatList.add(flat);
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return flatList;
 	}
 
 	public List<Flat> getPaymentsFromBankTable() throws SQLException {
 
 		List<Flat> paymentList = new ArrayList<>();
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT * FROM bankTable";
 
@@ -600,17 +695,20 @@ public class FlatService {
 			paymentList.add(flat);
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return paymentList;
 	}
 
 	public Flat getFlatFromFlatBuyerTableByContract(String contractNumber) throws SQLException {
 
 		Flat flat = new Flat();
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT * FROM flatBuyerTable WHERE flatContractNumber = '" + contractNumber + "'";
 		
@@ -643,64 +741,22 @@ public class FlatService {
 
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return flat;
 	}
 
-//	public List<Flat> getFlatsFromFlatTableAndFlatBuyerDB() throws SQLException {
-//
-//		List<Flat> flatList = new ArrayList<>();
-//
-//		SqlConnection sqlConnection = new SqlConnection();
-//		Connection conn = sqlConnection.sqlConnection();
-//
-//		String sql = "SELECT flattable.*, flatbuyertable.* FROM flatTable LEFT JOIN flatbuyertable ON flatTable.idFlatTable = flatbuyertable.idflatTable";
-//
-////		System.out.println(sql);
-//		Statement statement = conn.createStatement();
-//
-//		ResultSet rs = statement.executeQuery(sql);
-//
-//		ResultSetMetaData md = rs.getMetaData();
-//		int cnt = md.getColumnCount();
-//
-//		while (rs.next()) {
-//
-//			Flat flat = new Flat();
-//			for (int i = 1; i <= cnt; i++) {
-//				flat.setIdFlatTable(rs.getInt(1));
-//				flat.setBuildingCorps(rs.getString(2));
-//				flat.setFlatRooms(rs.getInt(3));
-//				flat.setFlatFloor(rs.getInt(4));
-//				flat.setFlatNumber(rs.getInt(5));
-//				flat.setFlatArea(rs.getDouble(6));
-//				flat.setFlatSet(rs.getString(7));
-//
-//				flat.setFlatBuyerFirstname(rs.getString(10));
-//				flat.setFlatBuyerLastname(rs.getString(11));
-//				flat.setFlatBuyerSurname(rs.getString(12));
-//				flat.setFlatContractDate(rs.getDate(13));
-//				flat.setFlatContractNumber(rs.getString(14));
-//				flat.setFlatCost(rs.getInt(15));
-//				flat.setFlatSellerName(rs.getString(16));
-//				flat.setFlatNotes(rs.getString(17));
-//
-//			}
-//			flatList.add(flat);
-//		}
-//
-//		conn.close();
-//
-//		return flatList;
-//	}
+
 
 	public List<Flat> getFlatsFromBankTableByIdFlatTable(int idFlatTable) throws SQLException {
 
 		List<Flat> flatList = new ArrayList<>();
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT * FROM bankTable WHERE idFlatTable = " + idFlatTable;
 
@@ -724,17 +780,20 @@ public class FlatService {
 			flatList.add(flat);
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return flatList;
 	}
 
 	public List<Flat> getFlatsByFlatSetFromDB(String flatSet) throws SQLException {
 
 		List<Flat> flatList = new ArrayList<>();
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT flattable.*, flatbuyertable.* FROM flatTable LEFT JOIN flatbuyertable ON flatTable.idFlatTable = flatbuyertable.idflatTable WHERE flatSet = '"
 				+ flatSet + "'";
@@ -765,17 +824,20 @@ public class FlatService {
 			flatList.add(flat);
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return flatList;
 	}
 
 	public List<Flat> getFlatsByFlatSetFromOrderedFlatTable(String flatSet) throws SQLException {
 
 		List<Flat> flatList = new ArrayList<>();
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT * FROM flatTable WHERE flatSet = '" + flatSet + "' ORDER BY buildingCorps, flatNumber";
 
@@ -802,17 +864,20 @@ public class FlatService {
 			flatList.add(flat);
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return flatList;
 	}
 
 	public Flat getFlatByFlatIdFromFlatBuyerTable(int flatId) throws SQLException {
 
 		Flat flat = new Flat();
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT * FROM flatbuyertable WHERE idFlatTable = " + flatId;
 
@@ -834,17 +899,20 @@ public class FlatService {
 
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return flat;
 	}
 
 	public List<Flat> getExpensesByFlatIdFromExpensesTable(int idFlatTable) throws SQLException {
 
 		List<Flat> flatList = new ArrayList<>();
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT * FROM expensesTable WHERE idflatTable = " + idFlatTable;
 
@@ -871,8 +939,10 @@ public class FlatService {
 			flatList.add(flat);
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return flatList;
 	}
 
@@ -880,9 +950,10 @@ public class FlatService {
 			throws SQLException {
 
 		List<Flat> flatList = new ArrayList<>();
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT * FROM expensesTable WHERE idflatTable = " + idFlatTable + " AND expensesTableCategory = '"
 				+ category + "'";
@@ -907,17 +978,20 @@ public class FlatService {
 			flatList.add(flat);
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return flatList;
 	}
 
 	public List<Flat> getExpensesFromExpensesTable() throws SQLException {
 
 		List<Flat> flatList = new ArrayList<>();
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT * FROM expensesTable";
 
@@ -944,17 +1018,20 @@ public class FlatService {
 			flatList.add(flat);
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return flatList;
 	}
 
 	public Flat getFlatByFlatIdFromFlatTable(int flatId) throws SQLException {
 
 		Flat flat = new Flat();
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT * FROM flatTable WHERE idFlatTable=" + flatId;
 
@@ -979,8 +1056,10 @@ public class FlatService {
 			}
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return flat;
 	}
 	
@@ -988,9 +1067,10 @@ public class FlatService {
 	public Flat getFlatByIdFromExpensesTable(int flatId) throws SQLException {
 
 		Flat flat = new Flat();
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT * FROM expensesTable WHERE idExpensesTable = " + flatId;
 
@@ -1015,8 +1095,10 @@ public class FlatService {
 			}
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return flat;
 	}
 	
@@ -1024,9 +1106,10 @@ public class FlatService {
 	public Flat getFlatByFlatIdFromFlatTableShortInfo(int flatId) throws SQLException {
 
 		Flat flat = new Flat();
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT * FROM flatTable WHERE idFlatTable=" + flatId;
 
@@ -1049,8 +1132,10 @@ public class FlatService {
 			}
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return flat;
 	}
 
@@ -1113,7 +1198,8 @@ public class FlatService {
 	}
 
 	public void createExpensesFlat(Flat flat) throws SQLException {
-
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 		int idflatTable = flat.getIdFlatTable();
@@ -1126,8 +1212,8 @@ public class FlatService {
 		String expensesTableValue = flat.getExpensesTableValue();
 		String expensesTableValueTA = flat.getExpensesTableValueTA();
 
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "INSERT INTO expensesTable (idflatTable, expensesTableDate, expensesTableSum, expensesTableCategory, expensesTableValue, expensesTableValue) VALUES ("
 				+ idflatTable + ", TIMESTAMP('" + expensesTableDate + "'), " + expensesTableSum + ", '"
@@ -1136,17 +1222,20 @@ public class FlatService {
 //		System.out.println(sql);
 		Statement statement = conn.createStatement();
 		statement.executeUpdate(sql);
-
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		//		conn.close();
 	}
 
 	public int getExpensesFlatInfoFromExpensesTableByFlatId(int flatId, String expensesTableCategory)
 			throws SQLException {
 
 		int sumExpensesTableCategory = 10;
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT SUM(expensesTableSum) FROM expensesTable WHERE expensesTableCategory = '"
 				+ expensesTableCategory + "' AND idflatTable = " + flatId;
@@ -1167,8 +1256,10 @@ public class FlatService {
 			}
 		}
 
-		conn.close();
-
+		//		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return sumExpensesTableCategory;
 
 	}
@@ -1176,9 +1267,10 @@ public class FlatService {
 	public double getPaymentSumFromBankTableByFlatTableId(int flatId) throws SQLException {
 
 		double paymentSum = 0;
-
-		SqlConnection sqlConnection = new SqlConnection();
-		Connection conn = sqlConnection.sqlConnection();
+		try (Connection conn = SqlPoolConnection.getInstance()
+	            .getConnection()) {
+//		SqlConnection sqlConnection = new SqlConnection();
+//		Connection conn = sqlConnection.sqlConnection();
 
 		String sql = "SELECT SUM(bankTablePaymentSum) FROM bankTable WHERE idflatTable = " + flatId;
 
@@ -1197,8 +1289,10 @@ public class FlatService {
 
 			}
 		}
-
-		conn.close();
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		//		conn.close();
 
 		return paymentSum;
 

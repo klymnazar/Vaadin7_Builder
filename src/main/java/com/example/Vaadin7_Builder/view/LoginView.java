@@ -1,6 +1,9 @@
 package com.example.Vaadin7_Builder.view;
 
+import java.sql.Connection;
+
 import com.example.Vaadin7_Builder.NavigatorUI;
+//import com.example.Vaadin7_Builder.service.SqlConnection;
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -39,7 +42,6 @@ public class LoginView extends VerticalLayout implements View {
 
 		loginButton.addClickListener( e -> {
 			UI.getCurrent().getNavigator().navigateTo(NavigatorUI.MAINVIEW);
-			
 			
 //			if (usernameTextField.getValue().equals("admin") && passwordPasswordField.getValue().equals("admin"))
 //			{
